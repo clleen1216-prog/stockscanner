@@ -176,7 +176,7 @@ def simulate_trade(o, h, l, c, atr, i, cfg, ma20=None):
             exit_price, reason, bars = target, "target", j - j0 + 1
             break
 
-    ret = exit_price / entry - 1 - ROUND_TRIP_COST
+    ret = exit_price / entry - 1 - cfg.get("round_trip_cost", ROUND_TRIP_COST)   # 預設為台股成本；美股設定會覆蓋
     return {"ret": float(ret), "R": float(ret / risk_frac), "bars": int(bars),
             "reason": reason, "risk_frac": float(risk_frac)}
 
