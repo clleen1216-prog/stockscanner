@@ -2,6 +2,14 @@ name: US Strategy Research
 
 on:
   workflow_dispatch:  # manual only: run it from the Actions tab
+    inputs:
+      universe:
+        description: "Stock list: wide (about 3000 liquid stocks) or sp500"
+        type: choice
+        options:
+          - wide
+          - sp500
+        default: wide
 
 permissions:
   contents: write
@@ -9,7 +17,7 @@ permissions:
 jobs:
   us-research:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
 
@@ -22,6 +30,8 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run US strategy research
+        env:
+          US_UNIVERSE: ${{ github.event.inputs.universe }}
         run: python us_research.py
 
       - name: Commit report to repo
