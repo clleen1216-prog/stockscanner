@@ -2,6 +2,9 @@
 import io
 
 import pandas as pd
+import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 import stock_scanner as sc
 
@@ -85,3 +88,102 @@ def us_environment(session, rng="5y"):
     except Exception as e:
         print(f"⚠️ S&P 500 指數載入略過: {e}")
     return env
+
+
+# ==============================================================================
+# 寬名單：全美股普通股 → 以最近 20 日成交金額取前 3000 檔
+# ==============================================================================
+US_WIDE_CONFIG = {
+    **US_CONFIG,
+    "round_trip_cost": 0.002,        # 寬名單含中小型股，價差較大，成本抓 0.2%（S&P 500 版為 0.1%）
+    "wide_universe_size": 3000,
+    "min_dollar_vol": 5_000_000,     # 20 日平均成交金額下限（美元）
+    "max_workers": 8,                # 檔數多，降低併發避免被 Yahoo 限流
+    "report_dir": "reports_us",
+}
+
+NASDAQ_URL = "https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt"
+OTHER_URL = "https://www.nasdaqtrader.com/dynamic/SymDir/otherlisted.txt"
+BAD_NAME_WORDS = ("warrant", " rights", " right ", "units", "preferred", "notes", "debenture",
+                  "subordinated", "% ", " fund", " etn")
+
+
+def us_session():
+    """較有耐心的連線：遇到 429/5xx 會等待後重試。"""
+    s = requests.Session()
+    retry = Retry(total=5, backoff_factor=1.0, status_forcelist=[429, 500, 502, 503, 504])
+    ad = HTTPAdapter(max_retries=retry, pool_connections=20, pool_maxsize=20)
+    s.mount("https://", ad)
+    s.mount("http://", ad)
+    return s
+
+
+def _ok_symbol(sym):
+    if not sym or "$" in sym:
+        return False
+    if "-" in sym:
+        base, suffix = sym.split("-", 1)
+        if suffix not in ("A", "B", "C"):         # 只保留 A/B/C 股別（BRK-B）；排除權證/單位/特別股
+            return False
+        return base.isalpha() and 1 <= len(base) <= 5
+    if not sym.isalpha() or len(sym) > 5:
+        return False
+    if len(sym) == 5 and sym[-1] in "WRU":         # 5 碼且結尾 W/R/U：權證、權利、單位
+        return False
+    return True
+
+
+def parse_symbol_directory(text, kind):
+    """解析 Nasdaq Trader 的 nasdaqlisted / otherlisted。只留一般普通股（排除 ETF、測試、權證、特別股…）。"""
+    out = []
+    for line in text.splitlines()[1:]:
+        c = line.split("|")
+        if len(c) < 7 or line.startswith("File Creation"):
+            continue
+        if kind == "nasdaq":
+            sym, name, test, status, etf = c[0], c[1], c[3], c[4], c[6]
+            if status.strip() != "N":
+                continue
+        else:
+            sym, name, etf, test = c[0], c[1], c[4], c[6]
+        if etf.strip() != "N" or test.strip() != "N":
+            continue
+        low = " " + name.lower() + " "
+        if any(w in low for w in BAD_NAME_WORDS):
+            continue
+        sym = sym.strip().replace(".", "-").replace("/", "-")
+        if _ok_symbol(sym):
+            out.append((sym, name.strip()))
+    return out
+
+
+def get_us_universe(session):
+    syms, seen = [], set()
+    for url, kind in ((NASDAQ_URL, "nasdaq"), (OTHER_URL, "other")):
+        try:
+            r = session.get(url, headers=sc.HEADERS, timeout=30)
+            if r.status_code == 200:
+                for sym, name in parse_symbol_directory(r.text, kind):
+                    if sym not in seen:
+                        seen.add(sym)
+                        syms.append((sym, name))
+        except Exception:
+            pass
+    return syms
+
+
+def select_liquid(raw, n, min_price, min_dollar_vol):
+    """從已下載的資料中，依最近 20 日平均成交金額取前 n 檔（排除已下市/停止更新、低價、低流動性）。"""
+    if not raw:
+        return []
+    latest = max(df.index[-1] for df in raw.values())
+    rows = []
+    for sym, df in raw.items():
+        if len(df) < 250 or df.index[-1] < latest - pd.Timedelta(days=10):
+            continue
+        px = float(df["Close"].iloc[-1])
+        dv = float((df["Close"] * df["Volume"]).iloc[-20:].mean())
+        if px >= min_price and dv >= min_dollar_vol:
+            rows.append((dv, sym))
+    rows.sort(reverse=True)
+    return [sym for _, sym in rows[:n]]
