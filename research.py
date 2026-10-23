@@ -28,8 +28,17 @@ VARIANTS = [
     ("V6 上升趨勢+移動出場", {"setup_mode": "uptrend_base", **WIDE, "exit_mode": "trail", "hold_days": 60}),
     ("V7 上升趨勢+三訊號+移動出場", {"setup_mode": "uptrend_base", "trig_min": 3, **WIDE,
                                       "exit_mode": "trail", "hold_days": 60}),
+    # --- 第二批（資金流向，價量訊號；出場方式事先固定，不看結果調整）---
+    ("V8 價漲量增突破(多頭排列帶量創20日高)+移動出場",
+     {"setup_mode": "flow_breakout", **WIDE, "exit_mode": "trail", "hold_days": 60}),
+    ("V9 低檔爆量不破底+目標3R/40天",
+     {"setup_mode": "low_volume_spike", **WIDE, "target_R": 3.0, "hold_days": 40}),
+    ("V10 資金累積(CMF轉強)+移動出場",
+     {"setup_mode": "cmf_accum", **WIDE, "exit_mode": "trail", "hold_days": 60}),
+    ("V11 強勢股帶量創60日高+移動出場",
+     {"setup_mode": "momentum_flow", **WIDE, "exit_mode": "trail", "hold_days": 60}),
 ]
-T_REQUIRED = 2.5
+T_REQUIRED = 2.7   # 同時測 12 個變體，門檻由 2.5 提高
 MIN_TRADES = 100
 
 
@@ -78,9 +87,9 @@ def run_research(dfs, env, base_cfg):
 
 def build_report(rows, date_str):
     L = [f"# 策略變體研究 {date_str}", "",
-         "同一份 5 年資料、事先列好的 8 個變體，含交易成本。每個變體都與「相同出場規則的隨機進場」比較。", "",
+         f"同一份 5 年資料、事先列好的 {len(VARIANTS)} 個變體，含交易成本。每個變體都與「相同出場規則的隨機進場」比較。", "",
          f"**通過標準（事先訂定）**：訊號 ≥ {MIN_TRADES} 筆、樣本內與樣本外期望值都 > 0、"
-         f"期望值相對隨機進場的 t 值 ≥ {T_REQUIRED}（已因同時測 8 個變體而提高門檻），且樣本外 t 值 ≥ 1.65。", "",
+         f"期望值相對隨機進場的 t 值 ≥ {T_REQUIRED}（已因同時測 12 個變體而提高門檻），且樣本外 t 值 ≥ 1.65。", "",
          "| 變體 | 訊號數 | 勝率 | 期望值 | 隨機進場期望值 | t 值 | 樣本內 | 樣本外 (n) | 結果 |",
          "|---|---|---|---|---|---|---|---|---|"]
     for r in rows:
@@ -92,7 +101,7 @@ def build_report(rows, date_str):
     L += ["", "## 結論"]
     if winners:
         L += [f"- 通過檢驗的變體：{', '.join(w['name'] for w in winners)}。",
-              "- 即使通過，仍需先小額模擬追蹤數週再使用；同時測了 8 個變體，仍有少數機率是運氣。"]
+              "- 即使通過，仍需先小額模擬追蹤數週再使用；同時測了 12 個變體，仍有少數機率是運氣。"]
     else:
         L += ["- **沒有任何變體通過檢驗。** 在這份資料上找不到可靠的統計優勢，請不要依這些訊號交易。"]
     L += ["", "## 注意事項",

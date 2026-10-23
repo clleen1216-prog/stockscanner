@@ -103,7 +103,39 @@ def compute_signals(d, cfg):
     f["body_atr"] = body / d["ATR14"]
     f["ret20"] = d["Close"] / d["Close"].shift(20) - 1
     f["upper_ratio"] = upper / (d["High"] - d["Low"]).replace(0, np.nan)
+    if cfg.get("setup_mode") in ("flow_breakout", "low_volume_spike", "cmf_accum", "momentum_flow"):
+        s = _flow_signals(d, s, cfg["setup_mode"])
     return s, f
+
+
+def _flow_signals(d, s, mode):
+    """資金流向類訊號（只用價量，回溯可驗證）。回傳更新後的 s。"""
+    c, o, h, l, v = d["Close"], d["Open"], d["High"], d["Low"], d["Volume"]
+    rng = (h - l).replace(0, np.nan)
+    pos = (c - l) / rng                       # 收盤在當日區間的位置 (1=收最高)
+    ma60_up = d["MA60"] > d["MA60"].shift(10)
+    vr = v / d["Vol_MA20"]
+    if mode == "flow_breakout":               # 價漲量增：多頭排列中帶量突破 20 日高
+        setup = (c > d["MA20"]) & (d["MA20"] > d["MA60"]) & ma60_up
+        trig = (vr >= 1.5) & (vr < 4) & (c > o) & (c >= c.rolling(20).max()) & (pos >= 0.7)
+    elif mode == "low_volume_spike":          # 爆量不跌：低檔爆量收紅且不創新低
+        setup = c <= d["Low_120"] * 1.20
+        prior_low = l.shift(1).rolling(20).min()
+        trig = (vr >= 2.5) & (c > o) & (pos >= 0.5) & (l >= prior_low)
+    elif mode == "cmf_accum":                 # 資金累積：20 日 Chaikin 資金流轉強
+        mfm = ((c - l) - (h - c)) / rng
+        cmf = (mfm.fillna(0) * v).rolling(20).sum() / v.rolling(20).sum()
+        setup = (c > d["MA60"]) & ma60_up
+        trig = (cmf > 0.10) & (cmf.shift(1) <= 0.10)
+    elif mode == "momentum_flow":             # 強勢+資金湧入：60 日漲幅大且帶量創 60 日新高
+        setup = ((c / c.shift(60) - 1) >= 0.20) & (c > d["MA20"]) & (d["MA20"] > d["MA60"]) \
+                & (d["Vol_MA20"] > v.rolling(60).mean())
+        trig = (c >= c.rolling(60).max()) & (vr >= 1.3) & (vr < 4) & (c > o)
+    else:
+        return s
+    s["setup"] = setup.fillna(False)
+    s["entry"] = (setup & trig).fillna(False)
+    return s
 
 
 def stop_fraction(atr, price, cfg):
