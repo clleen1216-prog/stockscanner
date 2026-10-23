@@ -85,6 +85,7 @@ def check_market_environment(session):
     env = {
         "is_day_bullish": True, "night_pct": 0.0, "is_night_safe": True,
         "bull_by_date": None, "twii_ret": None, "twii_close": 0.0, "twii_ma60": 0.0,
+        "twii_series": None,
     }
     try:
         twii = fetch_index_close(session, "^TWII", CONFIG["history_range"])
@@ -92,6 +93,7 @@ def check_market_environment(session):
             ma60 = twii.rolling(60).mean()
             env["bull_by_date"] = (twii > ma60).astype(float).where(ma60.notna())
             env["twii_ret"] = twii.pct_change().dropna()
+            env["twii_series"] = twii
             env["twii_close"], env["twii_ma60"] = float(twii.iloc[-1]), float(ma60.iloc[-1])
             env["is_day_bullish"] = env["twii_close"] > env["twii_ma60"]
     except Exception as e:
