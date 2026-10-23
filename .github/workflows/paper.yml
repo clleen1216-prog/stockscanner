@@ -1,0 +1,35 @@
+name: Paper Trading
+
+on:
+  schedule:
+    # Mon-Fri 18:15 Taiwan time (10:15 UTC), after the daily scan
+    - cron: "15 10 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  paper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Update paper trading log
+        run: python paper_trade.py
+
+      - name: Commit log to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add paper/
+          git diff --staged --quiet || (git commit -m "Update paper trading log" && git pull --rebase && git push)
