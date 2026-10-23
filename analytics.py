@@ -3,6 +3,7 @@ analytics.py - 指標、訊號、交易模擬、統計證據、風險評估、�
 所有訊號只使用「當日(含)以前」的資料，進場假設為訊號隔日開盤價，避免未來函數。
 """
 import math
+import zlib
 
 import numpy as np
 import pandas as pd
@@ -52,12 +53,19 @@ def compute_signals(d, cfg):
     ma120_slope = d["MA120"] / d["MA120"].shift(20) - 1
     ma200_slope = (d["MA200"] / d["MA200"].shift(20) - 1).fillna(0)
 
-    s["trend"] = (
-        ((max_drop >= 0.30) | (ma120_slope.abs() < 0.03))
-        & (ma120_slope <= 0.015)
-        & (ma200_slope <= 0.015)
-        & (d["Close"] <= d["High_1y"] * cfg["max_relative_high"])
-    )
+    if cfg.get("setup_mode") == "uptrend_base":
+        # 變體：上升趨勢中的整理（股價在 120MA 之上、120MA 向上、距 1 年高點不遠）
+        s["trend"] = (
+            (d["Close"] > d["MA120"]) & (ma120_slope > 0)
+            & (d["Close"] >= d["High_1y"] * 0.75)
+        )
+    else:
+        s["trend"] = (
+            ((max_drop >= 0.30) | (ma120_slope.abs() < 0.03))
+            & (ma120_slope <= 0.015)
+            & (ma200_slope <= 0.015)
+            & (d["Close"] <= d["High_1y"] * cfg["max_relative_high"])
+        )
 
     mas = d[["MA5", "MA10", "MA20", "MA60"]]
     spread = (mas.max(axis=1) - mas.min(axis=1)) / mas.min(axis=1)
@@ -81,7 +89,7 @@ def compute_signals(d, cfg):
 
     not_exaggerated = d["Volume"] < d["Vol_MA20"] * 3.5
     healthy_k = (upper <= body * 1.5) | (body <= 0)
-    s["entry"] = s["setup"] & (s["trig_count"] >= 2) & not_exaggerated & healthy_k
+    s["entry"] = s["setup"] & (s["trig_count"] >= cfg.get("trig_min", 2)) & not_exaggerated & healthy_k
 
     f = pd.DataFrame(index=d.index)
     f["spread"] = spread
@@ -106,7 +114,7 @@ def stop_fraction(atr, price, cfg):
 # ==============================================================================
 # 2. 交易模擬（隔日開盤進場、ATR停損、R倍數停利、時間出場、含交易成本）
 # ==============================================================================
-def simulate_trade(o, h, l, c, atr, i, cfg):
+def simulate_trade(o, h, l, c, atr, i, cfg, ma20=None):
     n = len(c)
     j0 = i + 1
     if j0 >= n or not np.isfinite(atr[i]) or atr[i] <= 0:
@@ -117,7 +125,8 @@ def simulate_trade(o, h, l, c, atr, i, cfg):
 
     risk_frac = stop_fraction(atr[i], entry, cfg)
     stop = entry * (1 - risk_frac)
-    target = entry * (1 + risk_frac * cfg["target_R"])
+    trail = cfg.get("exit_mode") == "trail" and ma20 is not None
+    target = np.inf if trail else entry * (1 + risk_frac * cfg["target_R"])
 
     last = min(j0 + cfg["hold_days"], n) - 1
     exit_price, reason, bars = c[last], "time", last - j0 + 1
@@ -127,6 +136,9 @@ def simulate_trade(o, h, l, c, atr, i, cfg):
             break
         if l[j] <= stop:                      # 同日同時觸及時，保守先算停損
             exit_price, reason, bars = stop, "stop", j - j0 + 1
+            break
+        if trail and j > j0 and np.isfinite(ma20[j]) and c[j] < ma20[j]:
+            exit_price, reason, bars = c[j], "trail", j - j0 + 1   # 收盤跌破 20MA 出場
             break
         if h[j] >= target:
             exit_price, reason, bars = target, "target", j - j0 + 1
@@ -147,6 +159,7 @@ def collect_history(code, d, s, f, cfg, bull_by_date):
     n = len(d)
     o, h, l, c = d["Open"].values, d["High"].values, d["Low"].values, d["Close"].values
     atr = d["ATR14"].values
+    ma20 = d["MA20"].values
     hold = cfg["hold_days"]
 
     liq = (
@@ -166,17 +179,17 @@ def collect_history(code, d, s, f, cfg, bull_by_date):
     for i in np.flatnonzero(entry):
         if i < next_ok or i + hold + 1 >= n:   # 不重疊持倉；未結算的訊號不納入統計
             continue
-        r = simulate_trade(o, h, l, c, atr, i, cfg)
+        r = simulate_trade(o, h, l, c, atr, i, cfg, ma20)
         if r:
             r.update(code=code, date=d.index[i], bull=bool(bull[i]))
             trades.append(r)
             next_ok = i + hold
 
     samples, last_i = [], -99
-    for i in np.flatnonzero(setup):
+    for i in ([] if cfg.get("skip_samples") else np.flatnonzero(setup)):
         if i - last_i < 5 or i + hold + 1 >= n:
             continue
-        r = simulate_trade(o, h, l, c, atr, i, cfg)
+        r = simulate_trade(o, h, l, c, atr, i, cfg, ma20)
         if r is None:
             continue
         last_i = i
@@ -189,10 +202,10 @@ def collect_history(code, d, s, f, cfg, bull_by_date):
     valid = np.flatnonzero(liq[: max(n - hold - 1, 0)])
     valid = valid[valid >= 200]
     if len(valid):
-        rng = np.random.default_rng(abs(hash(code)) % (2**32))
+        rng = np.random.default_rng(zlib.crc32(code.encode()) % (2**32))
         pick = rng.choice(valid, size=min(cfg["baseline_per_stock"], len(valid)), replace=False)
         for i in pick:
-            r = simulate_trade(o, h, l, c, atr, int(i), cfg)
+            r = simulate_trade(o, h, l, c, atr, int(i), cfg, ma20)
             if r:
                 r.update(code=code, date=d.index[i], bull=bool(bull[i]))
                 baseline.append(r)
@@ -388,3 +401,12 @@ def risk_score(atr_pct, max_dd, beta, turnover_m, bull, night_safe, evidence_n):
 
 def evidence_strength(n):
     return "強" if n >= 100 else ("中" if n >= 30 else "弱")
+
+
+def welch_t(x, y):
+    """兩組 R 倍數的 Welch t 統計量（x 的平均是否高於 y）"""
+    x, y = np.asarray(x, float), np.asarray(y, float)
+    if len(x) < 2 or len(y) < 2:
+        return 0.0
+    se = math.sqrt(x.var(ddof=1) / len(x) + y.var(ddof=1) / len(y))
+    return float((x.mean() - y.mean()) / se) if se > 0 else 0.0

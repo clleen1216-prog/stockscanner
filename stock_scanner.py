@@ -6,7 +6,7 @@ import gc
 import os
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 import numpy as np
 import pandas as pd
@@ -137,36 +137,92 @@ def get_taiwan_stock_list():
         return []
 
 
+TW_TZ = timezone(timedelta(hours=8))
+CHIP_DATES = {"TWSE": None, "TPEx": None}
+
+
+def _num(x):
+    try:
+        return float(str(x).replace(",", "").strip())
+    except Exception:
+        return 0.0
+
+
+def _find_col(fields, must):
+    for i, f in enumerate(fields):
+        if all(m in str(f) for m in must):
+            return i
+    return None
+
+
+def parse_twse_t86(js):
+    """證交所三大法人買賣超日報 (rwd T86)。欄位以名稱定位，找不到才用預設位置。"""
+    out = {}
+    if not js or js.get("stat") != "OK" or not js.get("data"):
+        return out
+    fields = js.get("fields", [])
+    fi = _find_col(fields, ["外陸資買賣超"])
+    ti = _find_col(fields, ["投信買賣超"])
+    fi = 4 if fi is None else fi
+    ti = 10 if ti is None else ti
+    for row in js["data"]:
+        if len(row) > max(fi, ti):
+            out[str(row[0]).strip()] = {"foreign": _num(row[fi]), "trust": _num(row[ti])}
+    return out
+
+
+def parse_tpex_3insti(js):
+    """櫃買中心三大法人買賣超日報。外資合計買賣超=第 11 欄、投信買賣超=第 14 欄。"""
+    out = {}
+    if not js:
+        return out
+    if js.get("tables"):
+        rows = js["tables"][0].get("data", [])
+    else:
+        rows = js.get("aaData") or js.get("data") or []
+    for row in rows:
+        if len(row) > 13:
+            out[str(row[0]).strip()] = {"foreign": _num(row[10]), "trust": _num(row[13])}
+    return out
+
+
 def fetch_institutional_data():
     print("正在下載三大法人最新買賣超資料...")
-    twse_chips, tpex_chips = {}, {}
     session = create_session()
-    try:
-        res = session.get("https://openapi.twse.com.tw/v1/exchangeReport/T86", headers=HEADERS, timeout=10)
-        if res.status_code == 200:
-            for item in res.json():
-                code = item.get("Code", "")
-                if code:
-                    twse_chips[code] = {
-                        "foreign": float(item.get("ForeignInvestorsNetChange", item.get("ForeignInvestorNetChange", 0)) or 0),
-                        "trust": float(item.get("SiteNetChange", item.get("InvestmentTrustNetChange", 0)) or 0),
-                    }
-    except Exception:
-        pass
-    try:
-        res = session.get("https://www.tpex.org.tw/openapi/v1/tpex_3insti_daily_trading", headers=HEADERS, timeout=10)
-        if res.status_code == 200:
-            for item in res.json():
-                code = item.get("SecuritiesCompanyCode", item.get("Code", ""))
-                if code:
-                    tpex_chips[code] = {
-                        "foreign": float(item.get("ForeignNetChange", item.get("ForeignInvestorsNetChange", 0)) or 0),
-                        "trust": float(item.get("TrustNetChange", item.get("SiteNetChange", 0)) or 0),
-                    }
-    except Exception:
-        pass
-    print("✨ 籌碼對應表建立完成！\n")
-    return twse_chips, tpex_chips
+    twse, tpex = {}, {}
+    now = datetime.now(TW_TZ)
+    for back in range(0, 10):          # 當日資料尚未公布時，往前找最近的交易日
+        day = now - timedelta(days=back)
+        if day.weekday() >= 5:
+            continue
+        if not twse:
+            try:
+                r = session.get("https://www.twse.com.tw/rwd/zh/fund/T86", headers=HEADERS, timeout=15,
+                                params={"date": day.strftime("%Y%m%d"), "selectType": "ALL", "response": "json"})
+                if r.status_code == 200:
+                    twse = parse_twse_t86(r.json())
+                    if twse:
+                        CHIP_DATES["TWSE"] = day.strftime("%Y-%m-%d")
+            except Exception:
+                pass
+        if not tpex:
+            roc = f"{day.year - 1911}/{day.month:02d}/{day.day:02d}"
+            try:
+                r = session.get("https://www.tpex.org.tw/web/stock/3insti/daily_trade/3itrade_hedge_result.php",
+                                headers=HEADERS, timeout=15, params={"l": "zh-tw", "t": "D", "d": roc, "o": "json"})
+                if r.status_code == 200:
+                    tpex = parse_tpex_3insti(r.json())
+                    if tpex:
+                        CHIP_DATES["TPEx"] = day.strftime("%Y-%m-%d")
+            except Exception:
+                pass
+        if twse and tpex:
+            break
+    print(f"法人資料：上市 {len(twse)} 檔（{CHIP_DATES['TWSE']}）、上櫃 {len(tpex)} 檔（{CHIP_DATES['TPEx']}）")
+    if not twse and not tpex:
+        print("⚠️ 未取得法人資料，A+ 評級將停用。")
+    print()
+    return twse, tpex
 
 
 # ==============================================================================
@@ -243,10 +299,12 @@ def analyze_stock(session, stock_info, market_env):
 # ==============================================================================
 def evaluate_candidate(cur, ctx):
     env, evidence, ml, trades_df = ctx["env"], ctx["evidence"], ctx["ml"], ctx["trades_df"]
-    chips = (ctx["twse_chips"] if cur["market"] == "TWSE" else ctx["tpex_chips"]).get(
-        cur["code"], {"foreign": 0, "trust": 0})
+    chip_map = ctx["twse_chips"] if cur["market"] == "TWSE" else ctx["tpex_chips"]
+    chips = chip_map.get(cur["code"])
+    chip_ok = chips is not None
+    chips = chips or {"foreign": 0, "trust": 0}
     foreign_lots, trust_lots = int(chips["foreign"] / 1000), int(chips["trust"] / 1000)
-    inst_buy = chips["foreign"] > 0 or chips["trust"] > 0
+    inst_buy = chip_ok and (chips["foreign"] > 0 or chips["trust"] > 0)
 
     # 證據母體：同環境(多/空頭)下的全市場歷史；樣本太少就退回全樣本
     reg = evidence["regime"][bool(env["is_day_bullish"])]
@@ -317,11 +375,14 @@ def evaluate_candidate(cur, ctx):
         "dist_high_pct": round(cur["feat"]["dist_high"] * 100, 1),
         "rsi": round(cur["feat"]["rsi"], 1),
         "avg_vol_lots": cur["avg_vol_lots"],
-        "foreign_lots": foreign_lots, "trust_lots": trust_lots,
+        "foreign_lots": foreign_lots if chip_ok else None,
+        "trust_lots": trust_lots if chip_ok else None, "chip_ok": chip_ok,
         "entry_k_half": round(cur["low"] + cur["body"] / 2, 2),
         "stop_loss_ma60": round(cur["ma60"], 2),
     }
     out["insights"] = build_rule_insight(out, env, evidence)
+    if not chip_ok:
+        out["insights"].append("籌碼：未取得此股的法人資料，A+ 評級不適用。")
     return out
 
 
@@ -330,6 +391,15 @@ def evaluate_candidate(cur, ctx):
 # ==============================================================================
 def pct(x):
     return f"{x * 100:.1f}%"
+
+
+def verdict_text(ev):
+    ov = ev["overall"]
+    if ev["validated"]:
+        return "✅ 通過統計驗證（顯著優於隨機進場）"
+    if ov["n"] >= 30 and ov["expectancy_R"] < 0 and ev["edge_vs_random"] < 0 and ev["p_vs_random"] < 0.05:
+        return "❌ 策略顯著劣於隨機進場，不建議依此交易"
+    return "⚠️ 未通過統計驗證（優勢不顯著），部位減半"
 
 
 def build_markdown(env, evidence, ml, picks, ai_text, date_str):
@@ -352,7 +422,7 @@ def build_markdown(env, evidence, ml, picks, ai_text, date_str):
           f"- 機器學習：{ml.get('status', '—')}"
           + (f"；測試期前 25% 高分訊號勝率 {pct(ml['top_quartile_win'])}（整體 {pct(ml['test_base_rate'])}）"
              if ml.get("valid") else ""),
-          f"- **結論：{'✅ 通過統計驗證（顯著優於隨機進場）' if evidence['validated'] else '⚠️ 未通過統計驗證，評級上限 B、部位減半'}**", ""]
+          f"- **結論：{verdict_text(evidence)}**", ""]
 
     L += ["## 3. 今日標的"]
     entries = [p for p in picks if p["is_entry"]]
@@ -426,7 +496,7 @@ def main():
     print(f"📊 策略證據：{ov['n']} 次訊號｜勝率 {pct(ov['win_rate'])}｜期望值 {ov['expectancy_R']:+.2f}R"
           f"｜隨機進場勝率 {pct(evidence['baseline']['win_rate'])}｜p={evidence['p_vs_random']:.4f}")
     print(f"🤖 機器學習：{ml.get('status')}")
-    print(f"{'✅ 通過統計驗證' if evidence['validated'] else '⚠️ 未通過統計驗證（評級上限 B、部位減半）'}")
+    print(f"{verdict_text(evidence)}")
     print("=" * 65)
 
     ctx = {"env": env, "evidence": evidence, "ml": ml, "trades_df": trades_df,
