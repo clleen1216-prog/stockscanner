@@ -246,12 +246,13 @@ def build_report(res, coverage, n_universe, n_matched, date_str, universe_kind):
 
 # ---------------------------------------------------------------- 下載與主程式
 def sec_headers():
-    raw = os.environ.get("SEC_USER_AGENT", "").strip()
-    ua = raw.encode("ascii", "ignore").decode("ascii").strip()      # HTTP 標頭只能用英文字母/數字
-    if raw and ua != raw:
-        print(f"⚠️ SEC_USER_AGENT 含有非英文字元，已移除，實際使用：「{ua}」。請改用英文姓名 + email。")
+    raw = os.environ.get("SEC_USER_AGENT", "")
+    # 只留可見的英文字元，換行/多餘空白一律變成單一空格（HTTP 標頭必須是單行純 ASCII）
+    ua = " ".join(re.sub(r"[^\x20-\x7E]", " ", raw).split())
+    if raw.strip() and ua != raw.strip():
+        print("⚠️ SEC_USER_AGENT 含有換行或非英文字元，已自動整理成單行（內容不顯示在記錄中）。")
     if not ua:
-        print("⚠️ 未設定（或只含中文）SEC_USER_AGENT，SEC 可能拒絕請求。請設成英文姓名 + email，例如 Chen Lee chenlee@gmail.com")
+        print("⚠️ 未設定（或只含中文）SEC_USER_AGENT，SEC 可能拒絕請求。請設成英文姓名 + email 的單行文字。")
         ua = "stock-research-script contact-not-set"
     return {"User-Agent": ua, "Accept-Encoding": "gzip, deflate"}
 
