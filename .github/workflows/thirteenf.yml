@@ -32,7 +32,7 @@ jobs:
       - name: Run 13F test
         env:
           US_UNIVERSE: ${{ github.event.inputs.universe }}
-          SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT || vars.SEC_USER_AGENT }}
         run: python thirteenf.py
 
       - name: Commit report to repo
