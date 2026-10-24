@@ -1,0 +1,43 @@
+name: 13F Smart Money Test
+
+on:
+  workflow_dispatch:  # manual only: run it from the Actions tab
+    inputs:
+      universe:
+        description: "Stock list: sp500 (faster) or wide (about 3000 liquid stocks, slower)"
+        type: choice
+        options:
+          - sp500
+          - wide
+        default: sp500
+
+permissions:
+  contents: write
+
+jobs:
+  thirteenf:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run 13F test
+        env:
+          US_UNIVERSE: ${{ github.event.inputs.universe }}
+          SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
+        run: python thirteenf.py
+
+      - name: Commit report to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add reports_us/
+          git diff --staged --quiet || (git commit -m "Add 13F report" && git pull --rebase && git push)
