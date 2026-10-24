@@ -246,22 +246,28 @@ def build_report(res, coverage, n_universe, n_matched, date_str, universe_kind):
 
 # ---------------------------------------------------------------- 下載與主程式
 def sec_headers():
-    ua = os.environ.get("SEC_USER_AGENT", "").strip()
+    raw = os.environ.get("SEC_USER_AGENT", "").strip()
+    ua = raw.encode("ascii", "ignore").decode("ascii").strip()      # HTTP 標頭只能用英文字母/數字
+    if raw and ua != raw:
+        print(f"⚠️ SEC_USER_AGENT 含有非英文字元，已移除，實際使用：「{ua}」。請改用英文姓名 + email。")
     if not ua:
-        print("⚠️ 未設定 SEC_USER_AGENT（姓名 + email），SEC 可能拒絕請求。請見說明。")
-        ua = "stock-research-script (set SEC_USER_AGENT)"
+        print("⚠️ 未設定（或只含中文）SEC_USER_AGENT，SEC 可能拒絕請求。請設成英文姓名 + email，例如 Chen Lee chenlee@gmail.com")
+        ua = "stock-research-script contact-not-set"
     return {"User-Agent": ua, "Accept-Encoding": "gzip, deflate"}
 
 
 def download_zip(session, url, path):
     for attempt in range(3):
-        r = session.get(url, headers=sec_headers(), timeout=300, stream=True)
-        if r.status_code == 200:
-            with open(path, "wb") as fh:
-                for chunk in r.iter_content(1 << 20):
-                    fh.write(chunk)
-            return True
-        print(f"  下載失敗 HTTP {r.status_code}：{url}")
+        try:
+            r = session.get(url, headers=sec_headers(), timeout=300, stream=True)
+            if r.status_code == 200:
+                with open(path, "wb") as fh:
+                    for chunk in r.iter_content(1 << 20):
+                        fh.write(chunk)
+                return True
+            print(f"  下載失敗 HTTP {r.status_code}：{url}")
+        except Exception as e:
+            print(f"  下載出錯（第 {attempt + 1} 次）：{type(e).__name__}: {e}")
         time.sleep(3 * (attempt + 1))
     return False
 
@@ -285,8 +291,20 @@ def main():
     closes = {s: raw[s]["Close"] for s in keep}
     uni = [(s, n) for s, n in universe if s in closes]
     print(f"價格可用 {len(closes)} 檔")
+    if len(closes) < 100:
+        print("❌ 價格資料太少（Yahoo 可能暫時限流），請稍後再試。")
+        return
 
-    r = session.get(PAGE_URL, headers=sec_headers(), timeout=60)
+    try:
+        r = session.get(PAGE_URL, headers=sec_headers(), timeout=60)
+    except Exception as e:
+        print(f"❌ 無法連到 SEC 網站：{type(e).__name__}: {e}")
+        return
+    print(f"SEC 資料集頁面：HTTP {r.status_code}，長度 {len(r.text)}")
+    if r.status_code != 200:
+        print(f"❌ SEC 拒絕請求（HTTP {r.status_code}）。回應開頭：{r.text[:300]!r}")
+        print("   常見原因：SEC_USER_AGENT 沒設定或格式不對（需要英文姓名 + email）。")
+        return
     links = sorted(parse_dataset_links(r.text), key=link_sort_key)[-n_quarters:]
     print(f"找到 13F 資料集 {len(links)} 個：{[l.rsplit('/', 1)[-1] for l in links]}")
     if not links:
@@ -297,9 +315,15 @@ def main():
     last_path = os.path.join("tmp13f", "latest.zip")
     if not download_zip(session, links[-1], last_path):
         return
-    with zipfile.ZipFile(last_path) as z:
-        names = name_table(z)
-    mapping = build_mapping(names, uni)
+    try:
+        with zipfile.ZipFile(last_path) as z:
+            names = name_table(z)
+        mapping = build_mapping(names, uni)
+    except Exception as e:
+        import traceback
+        print(f"❌ 讀取最新一季 13F 資料失敗：{type(e).__name__}: {e}")
+        traceback.print_exc()
+        return
     coverage = len(set(mapping.values())) / max(len(uni), 1)
     print(f"CUSIP 對照：{len(mapping)} 個 CUSIP → {len(set(mapping.values()))} 檔股票（覆蓋率 {coverage*100:.0f}%）")
     if coverage < MIN_COVERAGE:
