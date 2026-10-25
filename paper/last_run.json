@@ -1,5 +1,5 @@
 {
- "finished_utc": "2026-10-25T12:36:43Z",
+ "finished_utc": "2026-10-25T19:11:35Z",
  "twii_close": 46041.4296875,
  "twii_ma60": 46207.0912109375,
  "twii_above_ma60": false,
@@ -9,48 +9,7 @@
  "fed_ok": false,
  "fed_error": "FredError: WALCL failed after 4 tries (ConnectionError: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Max retries exceeded with url: /graph/fredgraph.csv?id=WALCL (Caused by ReadTimeoutError(\"HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Read timed out. (read timeout=40)\")))",
  "stocks_listed": 1978,
- "stocks_fetched": 1965,
- "new_signals": [
-  {
-   "strategy": "V10",
-   "code": "2368",
-   "name": "金像電"
-  },
-  {
-   "strategy": "V10",
-   "code": "2465",
-   "name": "麗臺"
-  },
-  {
-   "strategy": "V10",
-   "code": "6197",
-   "name": "佳必琪"
-  },
-  {
-   "strategy": "V10",
-   "code": "6213",
-   "name": "聯茂"
-  },
-  {
-   "strategy": "V10",
-   "code": "6491",
-   "name": "晶碩"
-  },
-  {
-   "strategy": "V10",
-   "code": "3631",
-   "name": "晟楠科技股份有限公司"
-  },
-  {
-   "strategy": "V10",
-   "code": "8086",
-   "name": "宏捷科技股份有限公司"
-  },
-  {
-   "strategy": "V10",
-   "code": "8089",
-   "name": "康全電訊股份有限公司"
-  }
- ],
+ "stocks_fetched": 1964,
+ "new_signals": [],
  "ledger_rows": 24
 }
