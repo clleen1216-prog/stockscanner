@@ -15,6 +15,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 import analytics as an
+import regime
 from ai_insights import build_rule_insight, llm_summary
 
 # ==============================================================================
@@ -331,6 +332,9 @@ def evaluate_candidate(cur, ctx):
     position = min(risk_used / risk_frac, CONFIG["max_position_pct"])
     if not evidence["validated"]:
         position *= 0.5
+    # 宏觀風險調節（Fed 流動性 + VIX）：只縮小、不放大；不影響評級與勝率估計
+    macro_mult = min(float((env.get("macro") or {}).get("size_mult", 1.0)), 1.0)
+    position *= macro_mult
 
     turnover_m = cur["avg_vol_lots"] * 1000 * cur["close"] / 1e6
     r_score, r_label = an.risk_score(
@@ -371,7 +375,8 @@ def evaluate_candidate(cur, ctx):
         "vol_ann_pct": round(cur["vol_ann"] * 100, 1), "turnover_m": round(turnover_m, 1),
         "stop_price": round(stop, 2), "stop_pct": round(risk_frac * 100, 1),
         "target_price": round(target, 2),
-        "risk_pct_used": round(risk_used * 100, 2), "position_pct": round(position * 100, 1),
+        "risk_pct_used": round(risk_used * macro_mult * 100, 2), "position_pct": round(position * 100, 1),
+        "macro_mult": macro_mult,
         "ma_spread_pct": round(cur["feat"]["spread"] * 100, 2),
         "vol_ratio": round(cur["feat"]["vol_ratio"], 2),
         "dist_high_pct": round(cur["feat"]["dist_high"] * 100, 1),
@@ -383,6 +388,8 @@ def evaluate_candidate(cur, ctx):
         "stop_loss_ma60": round(cur["ma60"], 2),
     }
     out["insights"] = build_rule_insight(out, env, evidence)
+    if macro_mult < 1:
+        out["insights"].append(f"宏觀風險調節：部位 ×{macro_mult}（{'；'.join(env['macro']['notes'])}）。")
     if not chip_ok:
         out["insights"].append("籌碼：未取得此股的法人資料，A+ 評級不適用。")
     return out
@@ -410,7 +417,8 @@ def build_markdown(env, evidence, ml, picks, ai_text, date_str):
     L += ["## 1. 大盤環境",
           f"- 加權指數 {env['twii_close']:.0f} / 季線 {env['twii_ma60']:.0f}："
           f"{'多頭 ✅' if env['is_day_bullish'] else '弱勢 ⚠️'}",
-          f"- 隔夜 S&P500 {env['night_pct']:+.2f}%：{'安全' if env['is_night_safe'] else '重挫警示'}", ""]
+          f"- 隔夜 S&P500 {env['night_pct']:+.2f}%：{'安全' if env['is_night_safe'] else '重挫警示'}"]
+    L += regime.macro_lines(env.get("macro")) + [""]
 
     L += ["## 2. 策略統計證據（全市場 5 年回測，含交易成本）",
           f"- 歷史訊號 **{ov['n']}** 次｜勝率 **{pct(ov['win_rate'])}**（95% 區間 {pct(ov['ci_lo'])}~{pct(ov['ci_hi'])}）",
@@ -447,6 +455,7 @@ def build_markdown(env, evidence, ml, picks, ai_text, date_str):
     if ai_text:
         L += ["## 5. Claude AI 解讀", ai_text, ""]
 
+    L += regime.evidence_lines() + [""]
     L += ["## 注意事項",
           "- 回測使用「目前仍上市櫃」的股票，存在倖存者偏差，實際勝率可能偏低。",
           "- 過去表現不代表未來；勝率為估計值而非保證。請自行評估並控管部位。",
@@ -463,6 +472,12 @@ def main():
     print("==========================================")
     session = create_session()
     env = check_market_environment(session)
+    try:
+        env["macro"] = regime.get_macro(session)
+        print("宏觀風險調節：" + "；".join(env["macro"]["notes"]) + f" → 部位倍數 ×{env['macro']['size_mult']}\n")
+    except Exception as e:
+        env["macro"] = None
+        print(f"⚠️ 宏觀風險調節略過：{type(e).__name__}: {e}\n")
     stock_list = get_taiwan_stock_list()
     if not stock_list:
         print("❌ 無法取得股票清單，請稍後再試。")

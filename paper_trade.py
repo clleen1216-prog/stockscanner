@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 
 import analytics as an
+import regime
 import research as rs
 import stock_scanner as sc
 
@@ -23,7 +24,8 @@ MIN_CLOSED_FOR_VERDICT = 100
 STRAT_KEYS = ["V6", "V8", "V10", "V11"]
 COLS = ["strategy", "signal_date", "code", "name", "market", "status", "entry_date", "entry_price",
         "stop", "risk_frac", "exit_date", "exit_price", "exit_reason", "bars", "ret", "R",
-        "last_close", "unreal_R", "bull", "bench_ret", "chip_foreign_lots", "chip_trust_lots"]
+        "last_close", "unreal_R", "bull", "bench_ret", "chip_foreign_lots", "chip_trust_lots",
+        "fed_expanding", "vix_close"]
 
 
 def strategy_cfgs():
@@ -73,6 +75,9 @@ def process_stock(code, name, market, df, cfgs, open_rows, chips, env):
         b = env["bull_by_date"].asof(d.index[-1])
         bull = None if pd.isna(b) else bool(b > 0.5)
     ch = chips.get(code)
+    macro = env.get("macro") or {}
+    fed = macro.get("fed") or {}
+    fed_flag = int(fed["expanding"]) if fed.get("units_ok") else None   # 訊號當天的 Fed 流動性狀態（前瞻驗證用）
     for key, cfg in cfgs.items():
         rows = open_rows.get(key, [])
         for sd in rows:                              # 更新這檔股票尚未結束的交易
@@ -86,6 +91,7 @@ def process_stock(code, name, market, df, cfgs, open_rows, chips, env):
             if bool(s["entry"].iloc[-1]):
                 new_sigs.append({"strategy": key, "signal_date": sig_date, "code": code, "name": name.strip(),
                                  "market": market, "status": "pending", "bull": bull,
+                                 "fed_expanding": fed_flag, "vix_close": macro.get("vix"),
                                  "chip_foreign_lots": int(ch["foreign"] / 1000) if ch else None,
                                  "chip_trust_lots": int(ch["trust"] / 1000) if ch else None})
     return updates, new_sigs
@@ -134,7 +140,7 @@ def verdict(closed):
         else "❌ 未達標，建議放棄"
 
 
-def build_report(ledger, date_str):
+def build_report(ledger, date_str, extra=None):
     L = [f"# 紙上交易報告 {date_str}", "",
          "同時追蹤 4 個策略，**純模擬，沒有使用真錢**：V6（對照組）、V8 價漲量增突破、V10 資金累積(CMF)、V11 強勢股帶量創高。",
          "回測期望值：V6 +0.15R、V8 +0.06R、V10 +0.08R、V11 +0.09R；這份紙上交易要驗證它們在「沒看過的新資料」上是否成立。", "",
@@ -168,6 +174,18 @@ def build_report(ledger, date_str):
                          else f"{len(sub)} / 樣本不足")
         L.append(f"| {key} | {cells[0]} | {cells[1]} |")
 
+    L += ["", "## Fed 流動性狀態 vs 結果（訊號當天，前瞻資料；每格 ≥ 10 筆才顯示平均）",
+          "| 策略 | 流動性擴張：筆數 / 平均每筆 | 流動性收縮：筆數 / 平均每筆 |", "|---|---|---|"]
+    for key in STRAT_KEYS:
+        cl = ledger[(ledger["strategy"] == key) & (ledger["status"] == "closed")]
+        flag = pd.to_numeric(cl["fed_expanding"], errors="coerce")
+        cells = []
+        for val in (1, 0):
+            sub = cl[flag == val]
+            cells.append(f"{len(sub)} / {sub['R'].astype(float).mean():+.2f}R" if len(sub) >= 10
+                         else f"{len(sub)} / 樣本不足")
+        L.append(f"| {key} | {cells[0]} | {cells[1]} |")
+
     opn = ledger[ledger["status"] == "open"]
     pend = ledger[ledger["status"] == "pending"]
     L += ["", f"## 持有中 {len(opn)} 筆｜今日新訊號 {len(pend)} 筆（隔日開盤模擬進場）"]
@@ -181,6 +199,7 @@ def build_report(ledger, date_str):
         both = [f"{c} {pend[pend['code'] == c].iloc[0]['name']}（{'+'.join(v)}）" for c, v in multi.items() if len(v) >= 2]
         if both:
             L.append(f"- 同時被多個策略選中：{'、'.join(both[:15])}")
+    L += [""] + list(extra or [])
     L += ["", "## 注意",
           "- 這 4 個策略都是「買強勢股」，訊號高度重疊，不是 4 個獨立的驗證。",
           "- 這是模擬，真實交易會有滑價、漲跌停鎖死買不到等問題，結果通常更差。",
@@ -217,6 +236,13 @@ def main():
 
     session = sc.create_session()
     env = sc.check_market_environment(session)
+    try:
+        env["macro"] = regime.get_macro(session)
+        if regime.log_macro(env["macro"], os.path.join(PAPER_DIR, "macro_log.csv")):
+            print("已新增一筆宏觀前瞻快照。")
+    except Exception as e:
+        env["macro"] = None
+        print(f"⚠️ 宏觀快照略過：{type(e).__name__}: {e}")
     stock_list = sc.get_taiwan_stock_list()
     if not stock_list:
         print("❌ 無法取得股票清單。")
@@ -251,7 +277,9 @@ def main():
     ledger.to_csv(LEDGER, index=False, encoding="utf-8-sig")
     date_str = datetime.now().strftime("%Y-%m-%d")
     with open(os.path.join(PAPER_DIR, "PAPER_REPORT.md"), "w", encoding="utf-8") as fh:
-        fh.write(build_report(ledger, date_str))
+        extra = regime.forward_lines(os.path.join(PAPER_DIR, "macro_log.csv"))
+        extra += [""] + regime.macro_lines(env.get("macro")) + [""] + regime.evidence_lines()
+        fh.write(build_report(ledger, date_str, extra))
     print(f"新訊號 {len(new_sigs)} 筆｜累計 {len(ledger)} 筆｜已存至 {PAPER_DIR}/")
 
 

@@ -357,6 +357,22 @@ def main():
     res = evaluate(signals, mapping, closes)
     date_str = datetime.now().strftime("%Y%m%d")
     os.makedirs("reports_us", exist_ok=True)
+    try:
+        import regime
+        labels = {"growth": "13F 機構持股成長率（美股）", "breadth": "13F 加碼家數 − 減碼家數（美股）"}
+        for k, rows in res.items():       # 把真實結果寫進證據看板，覆蓋手動種子資料
+            s = summarize_signal(rows)
+            regime.update_evidence(f"13f_{k}", name=labels.get(k, k), periods=s["quarters"], unit="季",
+                                   mean=s["mean"], t=s["t"], passed=s["passed"], asof=date_str,
+                                   source=f"thirteenf.py（{kind}）")
+        if signals:                       # 最新一季各股訊號：只供參考的資訊，不進任何分數或部位
+            lat = signals[max(signals)].copy()
+            lat["ticker"] = lat.index.map(mapping)
+            lat = lat.dropna(subset=["ticker"]).drop_duplicates("ticker")
+            lat.assign(period=max(signals).strftime("%Y-%m-%d"))[["ticker", "growth", "breadth", "holders", "period"]] \
+                .to_csv(os.path.join("reports_us", f"thirteenf_latest_{kind}.csv"), index=False)
+    except Exception as e:
+        print(f"⚠️ 證據看板/最新訊號匯出略過：{type(e).__name__}: {e}")
     out = os.path.join("reports_us", f"thirteenf_{kind}_{date_str}.md")
     with open(out, "w", encoding="utf-8") as fh:
         fh.write(build_report(res, coverage, len(uni), len(set(mapping.values())), date_str, kind))

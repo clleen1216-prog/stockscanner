@@ -160,6 +160,15 @@ def main():
     best = max(rows, key=lambda r: r["t"])
     timing = timing_backtest(spx, liq, best["name"]) | {"name": best["name"]}
     os.makedirs("reports_us", exist_ok=True)
+    try:
+        import regime
+        regime.update_evidence(
+            "fed_liquidity_welch", name=f"Fed 流動性 5 訊號中最強：{best['name']}（20 日區塊，S&P 500）",
+            periods=best["n_on"] + best["n_off"], unit="區塊", mean=best["excess"], t=best["t"],
+            passed=any(r["passed"] for r in rows), asof=datetime.now().strftime("%Y%m%d"),
+            source=f"fed_liquidity.py（門檻 t≥{T_REQUIRED}）")
+    except Exception as e:
+        print(f"⚠️ 證據看板更新略過：{type(e).__name__}: {e}")
     path = os.path.join("reports_us", f"fed_liquidity_{datetime.now().strftime('%Y%m%d')}.md")
     with open(path, "w", encoding="utf-8") as fh:
         fh.write(build_report(rows, liq, spx, datetime.now().strftime("%Y%m%d"), units_ok, timing))
