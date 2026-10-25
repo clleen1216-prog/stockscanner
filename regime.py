@@ -44,32 +44,67 @@ SEED_EVIDENCE = {
 
 
 # ------------------------------------------------------------------ Fed 淨流動性
-def fed_from_series(walcl, tga, rrp, today=None):
-    """由三個 FRED 序列算出目前的淨流動性狀態。單位：十億美元。資料不足或單位異常回傳 None。"""
+def _median_recent(series, n=100):
+    return float(pd.Series(series).dropna().iloc[-n:].median())
+
+
+def normalize_units(walcl, tga, rrp):
+    """Return (walcl, tga, rrp) in the units build_liquidity expects: WALCL and TGA in millions of dollars,
+    RRP in billions. FRED has changed units on some series before, so detect by magnitude instead of trusting.
+    Recent-level sanity: WALCL is ~6-9 million (millions) or ~6-9 thousand (billions); TGA ~0.3-1.0 million
+    (millions) or ~300-1000 (billions)."""
+    if _median_recent(walcl) < 100_000:      # looks like billions
+        walcl = walcl * 1000.0
+    if _median_recent(tga) < 20_000:         # looks like billions
+        tga = tga * 1000.0
+    if _median_recent(rrp) > 20_000:         # looks like millions
+        rrp = rrp / 1000.0
+    return walcl, tga, rrp
+
+
+def _fed_compute(walcl, tga, rrp, today=None):
+    """Compute the current net-liquidity state. Raises ValueError with a plain reason on any problem."""
     import fed_liquidity as fl
+    walcl, tga, rrp = normalize_units(walcl, tga, rrp)
     end = pd.Timestamp(today) if today is not None else pd.Timestamp.today().normalize()
     idx = pd.bdate_range(end=end, periods=400)
     liq = fl.build_liquidity(walcl, tga, rrp, idx).dropna(subset=["net"])
     if len(liq) <= LOOKBACK_DAYS + 5:
-        return None
+        raise ValueError(f"only {len(liq)} aligned days, need more than {LOOKBACK_DAYS + 5}")
     last, prev = liq.iloc[-1], liq["net"].iloc[-1 - LOOKBACK_DAYS]
     if not np.isfinite(prev) or prev == 0:
-        return None
+        raise ValueError("13-week-ago net liquidity is zero or missing")
     net = float(last["net"])
-    return {"asof": liq.index[-1].strftime("%Y-%m-%d"), "net_bn": net, "chg13_bn": net - float(prev),
-            "chg13_pct": net / float(prev) - 1, "expanding": bool(net > prev),
-            "assets_bn": float(last["assets"]), "tga_bn": float(last["tga"]), "rrp_bn": float(last["rrp"]),
-            "units_ok": bool(1000 <= net <= 12000)}
+    out = {"asof": liq.index[-1].strftime("%Y-%m-%d"), "net_bn": net, "chg13_bn": net - float(prev),
+           "chg13_pct": net / float(prev) - 1, "expanding": bool(net > prev),
+           "assets_bn": float(last["assets"]), "tga_bn": float(last["tga"]), "rrp_bn": float(last["rrp"]),
+           "units_ok": bool(1000 <= net <= 12000)}
+    if not out["units_ok"]:
+        raise ValueError(f"net liquidity {net:,.0f} bn is outside the sane 1,000-12,000 bn range (units?)")
+    stale = (end - liq.index[-1]).days
+    if stale > 10:
+        raise ValueError(f"latest aligned day is {stale} days old")
+    return out
+
+
+def fed_from_series(walcl, tga, rrp, today=None):
+    """Current net-liquidity state in billions of dollars, or None when the data is unusable."""
+    try:
+        return _fed_compute(walcl, tga, rrp, today)
+    except ValueError:
+        return None
 
 
 def fed_state(session):
+    """Fed state dict. On failure returns {"units_ok": False, "error": <reason>} so reports can say why."""
     try:
         import fed_liquidity as fl
         walcl, tga, rrp = (fl.fetch_fred(session, s) for s in ("WALCL", "WTREGEN", "RRPONTSYD"))
-        return fed_from_series(walcl, tga, rrp)
+        return _fed_compute(walcl, tga, rrp)
     except Exception as e:
-        print(f"⚠️ Fed 流動性資料略過：{type(e).__name__}: {e}")
-        return None
+        reason = f"{type(e).__name__}: {e}"
+        print(f"⚠️ Fed liquidity skipped: {reason}")
+        return {"units_ok": False, "error": reason}
 
 
 # ------------------------------------------------------------------ VIX 與總覽
@@ -123,7 +158,8 @@ def macro_lines(m):
         L.append(f"- Fed 淨流動性 ${f['net_bn']/1000:.2f}T（{f['asof']}）：**{'擴張' if f['expanding'] else '收縮'}**，"
                  f"13 週變化 {f['chg13_pct']*100:+.1f}%（資產 {f['assets_bn']/1000:.2f}T − TGA {f['tga_bn']/1000:.2f}T − 逆回購 {f['rrp_bn']/1000:.2f}T）")
     else:
-        L.append("- Fed 淨流動性：資料缺漏或單位異常，未採用。")
+        why = f"（{f['error']}）" if f and f.get("error") else ""
+        L.append(f"- Fed 淨流動性：資料缺漏或單位異常，未採用。{why}")
     L.append(f"- 宏觀部位倍數 **×{m['size_mult']}**：" + "；".join(m["notes"]))
     L.append("- 這是「只縮不放」的風險調節，不是選股訊號：Fed 13 週訊號尚未通過檢驗（見證據看板）。")
     return L

@@ -1,6 +1,7 @@
-requests>=2.31
-pandas>=2.0
-numpy>=1.24
-urllib3>=2.0
-scikit-learn>=1.3
-lxml>=4.9
+# Version ranges are capped at the next major release so a surprise upgrade cannot break the daily job.
+# Tested with: pandas 3.0, numpy 2.5, requests 2.34, urllib3 2.8, lxml 6.1 on Python 3.11 / 3.13.
+requests>=2.31,<3
+pandas>=2.2,<4
+numpy>=1.26,<3
+urllib3>=2.0,<3
+lxml>=4.9,<7

@@ -6,9 +6,10 @@ paper_trade.py - 紙上交易（前瞻驗證）：同時追蹤 4 個策略（V6 
 - 每天備份三大法人買賣超資料到 paper/chips/，累積之後可回測「法人連買」策略
 輸出：paper/ledger.csv（逐筆紀錄）、paper/PAPER_REPORT.md（績效報告）
 """
+import json
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime
+from datetime import datetime, timezone
 
 import numpy as np
 import pandas as pd
@@ -20,6 +21,7 @@ import stock_scanner as sc
 
 PAPER_DIR = "paper"
 LEDGER = os.path.join(PAPER_DIR, "ledger.csv")
+LAST_RUN = os.path.join(PAPER_DIR, "last_run.json")
 MIN_CLOSED_FOR_VERDICT = 100
 STRAT_KEYS = ["V6", "V8", "V10", "V11"]
 COLS = ["strategy", "signal_date", "code", "name", "market", "status", "entry_date", "entry_price",
@@ -219,6 +221,22 @@ def save_chips(twse, tpex):
                               for k, v in data.items()]).to_csv(path, index=False)
 
 
+def run_summary(env, new_sigs, ledger, n_stocks, n_fetched):
+    """Small machine-readable record of this run, read by digest.py and heartbeat.py."""
+    macro = env.get("macro") or {}
+    fed = macro.get("fed") or {}
+    return {
+        "finished_utc": datetime.now(timezone.utc).replace(tzinfo=None).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "twii_close": env.get("twii_close"), "twii_ma60": env.get("twii_ma60"),
+        "twii_above_ma60": bool(env.get("is_day_bullish")), "sp500_overnight_pct": env.get("night_pct"),
+        "size_mult": macro.get("size_mult"), "vix": macro.get("vix"),
+        "fed_ok": bool(fed.get("units_ok")), "fed_error": fed.get("error"),
+        "stocks_listed": n_stocks, "stocks_fetched": n_fetched,
+        "new_signals": [{"strategy": s["strategy"], "code": s["code"], "name": s["name"]} for s in new_sigs],
+        "ledger_rows": int(len(ledger)),
+    }
+
+
 def main():
     sc.CONFIG["history_range"] = "2y"
     cfgs = strategy_cfgs()
@@ -255,6 +273,7 @@ def main():
         open_by.setdefault(str(r["code"]), {}).setdefault(r["strategy"], []).append(r["signal_date"])
 
     updates, new_sigs = {}, []
+    fetched = 0
     with ThreadPoolExecutor(max_workers=sc.CONFIG["max_workers"]) as ex:
         futs = {ex.submit(sc.fetch_stock_kline, session, code, market): (code, name, market)
                 for code, name, market in stock_list}
@@ -265,6 +284,7 @@ def main():
             df = fut.result()
             if df is None or len(df) < 250:
                 continue
+            fetched += 1
             chips = twse if market == "TWSE" else tpex
             upd, sigs = process_stock(code, name, market, df, cfgs, open_by.get(code, {}), chips, env)
             updates.update(upd)
@@ -280,6 +300,8 @@ def main():
         extra = regime.forward_lines(os.path.join(PAPER_DIR, "macro_log.csv"))
         extra += [""] + regime.macro_lines(env.get("macro")) + [""] + regime.evidence_lines()
         fh.write(build_report(ledger, date_str, extra))
+    with open(LAST_RUN, "w", encoding="utf-8") as fh:
+        json.dump(run_summary(env, new_sigs, ledger, len(stock_list), fetched), fh, ensure_ascii=False, indent=1)
     print(f"新訊號 {len(new_sigs)} 筆｜累計 {len(ledger)} 筆｜已存至 {PAPER_DIR}/")
 
 

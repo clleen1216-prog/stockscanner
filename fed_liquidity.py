@@ -10,6 +10,7 @@ fed_liquidity.py - 聯準會流動性是否預測 S&P 500 未來 20 日報酬？
 """
 import io
 import os
+import time
 from datetime import datetime
 
 import numpy as np
@@ -33,14 +34,46 @@ SIGNALS = [
 ]
 
 
-def fetch_fred(session, sid):
-    r = session.get(FRED_URL.format(sid), headers=sc.HEADERS, timeout=40)
-    r.raise_for_status()
-    df = pd.read_csv(io.StringIO(r.text))
-    df.columns = ["date", "value"]                     # 欄名新舊版不同，用位置
-    df["date"] = pd.to_datetime(df["date"])
+FRED_TRIES = 4
+FRED_BACKOFF = 3.0          # seconds; waits 3, 6, 12 between tries
+FRED_MIN_ROWS = 20
+_sleep = time.sleep         # tests replace this so they run instantly
+
+
+class FredError(RuntimeError):
+    """FRED download failed in a way that is worth reporting verbatim."""
+
+
+def parse_fred_csv(sid, text):
+    """Parse a FRED graph CSV. Raises FredError when the body is not a usable series."""
+    head = text.lstrip()[:200].lower()
+    if head.startswith("<") or "<html" in head:
+        raise FredError(f"{sid}: got HTML instead of CSV (blocked or rate-limited)")
+    df = pd.read_csv(io.StringIO(text))
+    if df.shape[1] < 2:
+        raise FredError(f"{sid}: CSV has {df.shape[1]} column(s), expected 2")
+    df.columns = ["date", "value"] + list(df.columns[2:])   # column names differ between FRED versions
+    df["date"] = pd.to_datetime(df["date"], errors="coerce")
     df["value"] = pd.to_numeric(df["value"], errors="coerce")
-    return df.dropna().set_index("date")["value"]
+    out = df.dropna(subset=["date", "value"]).set_index("date")["value"].sort_index()
+    if len(out) < FRED_MIN_ROWS:
+        raise FredError(f"{sid}: only {len(out)} usable rows (need {FRED_MIN_ROWS})")
+    return out
+
+
+def fetch_fred(session, sid):
+    """Download one FRED series with retries. Raises FredError with the last reason if every try fails."""
+    last = None
+    for attempt in range(1, FRED_TRIES + 1):
+        try:
+            r = session.get(FRED_URL.format(sid), headers=sc.HEADERS, timeout=40)
+            r.raise_for_status()
+            return parse_fred_csv(sid, r.text)
+        except Exception as e:          # network error, HTTP error, bad body: all retried the same way
+            last = f"{type(e).__name__}: {e}"
+            if attempt < FRED_TRIES:
+                _sleep(FRED_BACKOFF * 2 ** (attempt - 1))
+    raise FredError(f"{sid} failed after {FRED_TRIES} tries ({last})")
 
 
 def build_liquidity(walcl, tga, rrp, index):

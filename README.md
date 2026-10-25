@@ -1,3 +1,27 @@
+# Taiwan Stock Scanner v3 (paper-trading research pipeline)
+
+**Status (v3, Phase 0 done):** the original v1 scanner was measured at -0.22R against random entry, so it no longer drives anything. The repo now runs one daily job that paper-trades three Taiwan strategies (V8, V10, V11, with V6 as a control) and builds a short digest. Nothing here trades real money. Rules for when a strategy may earn real money are in [PLAN.md](PLAN.md).
+
+## What runs by itself
+| When | Workflow | What it does |
+|---|---|---|
+| Weekdays 17:30 Taipei | `daily.yml` | updates `paper/ledger.csv`, writes `paper/PAPER_REPORT.md` and `reports/DIGEST.md`, commits once |
+| Sundays 10:00 Taipei | `heartbeat.yml` | checks the pipeline is fresh and healthy, opens a `pipeline-failure` issue if not, commits a timestamp |
+| Manual only | `research.yml`, `us_research.yml`, `thirteenf.yml`, `fed_liquidity.yml`, `legacy_scan.yml` | finished experiments, kept reproducible |
+
+If something breaks you get a GitHub issue labelled `pipeline-failure` (turn on email notifications for issues). Otherwise do nothing.
+
+## Read this
+- `reports/DIGEST.md`: market state, pipeline health, today's simulated signals.
+- `paper/PAPER_REPORT.md`: full paper-trading statistics.
+
+## Tests
+`python -m unittest discover -s tests -v` (offline, no network). Also runs on GitHub via the Tests workflow.
+
+---
+
+# Original v1 documentation (kept for reference)
+
 # Taiwan Stock SOP Scanner
 
 A Python scanner for Taiwan-listed (TWSE) and OTC (TPEx) stocks. It looks for stocks that are building a base: tangled moving averages, shrinking volume, and a possible breakout, then checks the market and institutional buying before suggesting an entry.
@@ -21,7 +45,7 @@ Reports are saved to `reports/smart_stock_report_YYYYMMDD.csv`.
 
 ## Run it automatically on GitHub
 
-`.github/workflows/scan.yml` runs the scan every weekday at 17:30 Taiwan time and commits the CSV into `reports/`. You can also trigger it manually from the **Actions** tab.
+In v3 the v1 scan is manual only (`legacy_scan.yml`). The daily schedule is `daily.yml`.
 
 ## Settings
 

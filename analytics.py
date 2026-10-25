@@ -339,47 +339,9 @@ def blend_probability(stock_wins, stock_n, prior_p, k):
 
 
 def train_model(samples_df, cfg):
-    """以時間切分（前70%訓練、後30%測試，中間留20天隔離）驗證模型是否真的有預測力"""
-    out = {"valid": False, "status": "樣本不足，未啟用機器學習", "n": len(samples_df)}
-    try:
-        from sklearn.ensemble import HistGradientBoostingClassifier
-        from sklearn.metrics import roc_auc_score
-    except ImportError:
-        out["status"] = "未安裝 scikit-learn，未啟用機器學習"
-        return out
-
-    if len(samples_df) < cfg["ml_min_samples"] or samples_df["label"].nunique() < 2:
-        return out
-
-    df = samples_df.sort_values("date").reset_index(drop=True)
-    cut_date = df["date"].iloc[int(len(df) * 0.7)]
-    train = df[df["date"] < cut_date - pd.Timedelta(days=30)]
-    test = df[df["date"] >= cut_date]
-    if len(train) < 100 or len(test) < 50 or train["label"].nunique() < 2 or test["label"].nunique() < 2:
-        return out
-
-    def new_model():
-        return HistGradientBoostingClassifier(
-            max_depth=3, learning_rate=0.05, max_iter=150,
-            min_samples_leaf=30, l2_regularization=1.0, random_state=7,
-        )
-
-    m = new_model().fit(train[FEATURE_COLS], train["label"])
-    p = m.predict_proba(test[FEATURE_COLS])[:, 1]
-    auc = float(roc_auc_score(test["label"], p))
-    top = test[p >= np.quantile(p, 0.75)]
-    final = new_model().fit(df[FEATURE_COLS], df["label"])
-
-    out.update(
-        model=final, auc=auc, train_n=len(train), test_n=len(test),
-        base_rate=float(df["label"].mean()),
-        test_base_rate=float(test["label"].mean()),
-        top_quartile_win=float(top["label"].mean()),
-        valid=bool(auc >= 0.55),
-        status=("已啟用（樣本外 AUC=%.3f）" % auc) if auc >= 0.55
-        else ("AUC=%.3f 未達 0.55，模型預測力不足，已停用" % auc),
-    )
-    return out
+    """Retired in v3: the out-of-sample AUC was 0.479 (below 0.55), so the model never had predictive power.
+    Kept as a stub so older callers keep working. predict_ml() returns None while valid is False."""
+    return {"valid": False, "status": "retired in v3 (out-of-sample AUC 0.479)", "n": len(samples_df)}
 
 
 def predict_ml(ml, feat_row, cfg):

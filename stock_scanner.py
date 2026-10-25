@@ -16,7 +16,7 @@ from urllib3.util.retry import Retry
 
 import analytics as an
 import regime
-from ai_insights import build_rule_insight, llm_summary
+from ai_insights import build_rule_insight
 
 # ==============================================================================
 # 0. 策略參數設定區
@@ -43,8 +43,6 @@ CONFIG = {
     "bayes_prior_strength": 15,   # 個股勝率向全市場收縮的強度
     "ml_min_samples": 300,
     "ml_shrink": 0.5,
-    "llm_model": "claude-sonnet-5-5",
-    "llm_top_n": 8,
     "report_dir": "reports",
 }
 
@@ -530,10 +528,7 @@ def main():
     if not any(p["is_entry"] for p in picks):
         print("\n今日無符合進場條件之標的，請保持耐心。")
 
-    ai_text = llm_summary([p for p in picks if p["is_entry"]], env, evidence, ml,
-                          CONFIG["llm_model"], CONFIG["llm_top_n"])
-    if ai_text:
-        print("\n🧠 Claude 解讀：\n" + ai_text)
+    ai_text = None   # v3: LLM summary removed (it only described a strategy that loses to random entry)
 
     os.makedirs(CONFIG["report_dir"], exist_ok=True)
     date_str = datetime.now().strftime("%Y%m%d")
