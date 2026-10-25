@@ -1,0 +1,76 @@
+name: Monthly Gate Check
+
+# 1st of each month, 09:00 Taipei (01:00 UTC). Rebuilds the random-entry comparison, re-evaluates the gate,
+# writes paper/STATUS.md, and opens an issue when the gate is no longer COLLECTING.
+on:
+  schedule:
+    - cron: "0 1 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: stockscanner-main-writes
+  cancel-in-progress: false
+
+jobs:
+  monthly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build random-entry baseline
+        run: python random_baseline.py
+
+      - name: Evaluate the gate
+        run: python gate.py
+
+      - name: Commit and push (retry on conflict)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add paper/
+          git diff --staged --quiet || git commit -m "Monthly gate check $(date -u +%F)"
+          ok=0
+          for i in 1 2 3 4; do
+            if git pull --rebase && git push; then ok=1; break; fi
+            sleep $((i * 8))
+          done
+          [ "$ok" = 1 ]
+
+      - name: Open an issue when the gate decides
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          state=$(jq -r .state paper/STATUS.json)
+          if [ "$state" != "COLLECTING" ]; then
+            title="Gate G1: $state"
+            if [ -z "$(gh issue list --state all --search "\"$title\" in:title" --json number --jq '.[0].number // empty')" ]; then
+              gh issue create --title "$title" --body "The monthly gate check says $state. Read paper/STATUS.md and PLAN.md for what to do next."
+            fi
+          fi
+
+      - name: Open or update a failure issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create pipeline-failure --color B60205 --force >/dev/null 2>&1 || true
+          url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          existing=$(gh issue list --label pipeline-failure --state open --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "Monthly gate job failed: $url"
+          else
+            gh issue create --label pipeline-failure --title "Monthly gate job failed" --body "Run: $url"
+          fi
