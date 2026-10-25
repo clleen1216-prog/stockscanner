@@ -1,12 +1,13 @@
 # Taiwan Stock Scanner v3 (paper-trading research pipeline)
 
-**Status (v3, Phase 0 done):** the original v1 scanner was measured at -0.22R against random entry, so it no longer drives anything. The repo now runs one daily job that paper-trades three Taiwan strategies (V8, V10, V11, with V6 as a control) and builds a short digest. Nothing here trades real money. Rules for when a strategy may earn real money are in [PLAN.md](PLAN.md).
+**Status (v3, Phases 0 and 1 done):** the original v1 scanner was measured at -0.22R against random entry, so it no longer drives anything. The repo now runs one daily job that paper-trades three Taiwan strategies (V8, V10, V11, with V6 as a control) and builds a short digest. Nothing here trades real money. Rules for when a strategy may earn real money are in [PLAN.md](PLAN.md).
 
 ## What runs by itself
 | When | Workflow | What it does |
 |---|---|---|
 | Weekdays 17:30 Taipei | `daily.yml` | updates `paper/ledger.csv`, writes `paper/PAPER_REPORT.md` and `reports/DIGEST.md`, commits once |
 | Sundays 10:00 Taipei | `heartbeat.yml` | checks the pipeline is fresh and healthy, opens a `pipeline-failure` issue if not, commits a timestamp |
+| 1st of the month, 09:00 Taipei | `monthly.yml` | rebuilds the random-entry comparison (`random_baseline.py`), runs `gate.py`, writes `paper/STATUS.md`, opens an issue when the gate decides |
 | Manual only | `research.yml`, `us_research.yml`, `thirteenf.yml`, `fed_liquidity.yml`, `legacy_scan.yml` | finished experiments, kept reproducible |
 
 If something breaks you get a GitHub issue labelled `pipeline-failure` (turn on email notifications for issues). Otherwise do nothing.
@@ -14,6 +15,12 @@ If something breaks you get a GitHub issue labelled `pipeline-failure` (turn on 
 ## Read this
 - `reports/DIGEST.md`: market state, pipeline health, today's simulated signals.
 - `paper/PAPER_REPORT.md`: full paper-trading statistics.
+- `paper/STATUS.md`: progress to the decision gate (monthly).
+- `data/daily/`: one compressed file per trading day with every stock's last bar and the full listed universe (survivorship-free data for future tests).
+- `experiments.json`: register of every test run. Add a row BEFORE running a new test; `python experiments.py` prints the honest t-bar.
+
+## Fixed rules (do not tune)
+Fill realism: a next-day open 9% or more above the signal close is treated as unfillable; every trade pays 0.1% slippage on top of 0.585% costs. The gate judges one combined V8 + V10 + V11 sleeve with at most 10 open positions, most liquid names first (`portfolio_sim.py`, `gate.py`).
 
 ## Tests
 `python -m unittest discover -s tests -v` (offline, no network). Also runs on GitHub via the Tests workflow.

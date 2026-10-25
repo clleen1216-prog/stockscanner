@@ -13,12 +13,13 @@ import pandas as pd
 
 LAST_RUN = os.path.join("paper", "last_run.json")
 LEDGER = os.path.join("paper", "ledger.csv")
+STATUS = os.path.join("paper", "STATUS.json")
 OUT = os.path.join("reports", "DIGEST.md")
 STRATS = ["V6", "V8", "V10", "V11"]
 NEEDED = 100          # closed trades per strategy before the first verdict (see gate rules)
 
 
-def build_digest(run, ledger):
+def build_digest(run, ledger, status=None):
     L = ["# Daily digest", "",
          "Paper trading only. No real money. Research, not investment advice.", ""]
     if not run:
@@ -36,13 +37,16 @@ def build_digest(run, ledger):
     L.append("- Fed liquidity feed: OK" if run.get("fed_ok")
              else f"- Fed liquidity feed: **NOT WORKING** ({run.get('fed_error') or 'no reason recorded'})")
     L += ["", "## Paper strategies",
-          f"A strategy needs {NEEDED} closed trades before any verdict. The decision rules are in PLAN.md.", "",
+          f"A strategy needs {NEEDED} closed trades before any verdict. The decision rules are in PLAN.md; the monthly check writes paper/STATUS.md.", "",
           "| Strategy | Signals | Open | Closed | Progress |", "|---|---|---|---|---|"]
     for k in STRATS:
         g = ledger[ledger["strategy"] == k] if len(ledger) else ledger
         n_closed = int((g["status"] == "closed").sum()) if len(g) else 0
         n_open = int(g["status"].isin(["open", "pending"]).sum()) if len(g) else 0
         L.append(f"| {k} | {len(g)} | {n_open} | {n_closed} | {n_closed}/{NEEDED} |")
+    if status:
+        L += ["", "## Gate", f"- State: **{status['state']}** as of {status['asof']} ({status['reason']})",
+              f"- Capped sleeve: {status['n_closed']} closed trades, {status['n_dates']} signal dates"]
     sigs = run.get("new_signals", [])
     L += ["", f"## New signals today ({len(sigs)}), simulated entry at next open"]
     if sigs:
@@ -66,9 +70,10 @@ def main():
     run = json.load(open(LAST_RUN, encoding="utf-8")) if os.path.exists(LAST_RUN) else None
     ledger = (pd.read_csv(LEDGER, encoding="utf-8-sig", dtype={"code": str})
               if os.path.exists(LEDGER) else pd.DataFrame(columns=["strategy", "status"]))
+    status = json.load(open(STATUS, encoding="utf-8")) if os.path.exists(STATUS) else None
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as fh:
-        fh.write(build_digest(run, ledger))
+        fh.write(build_digest(run, ledger, status))
     print(f"Wrote {OUT}")
 
 

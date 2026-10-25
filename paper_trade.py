@@ -15,6 +15,7 @@ import numpy as np
 import pandas as pd
 
 import analytics as an
+import archive
 import regime
 import research as rs
 import stock_scanner as sc
@@ -23,11 +24,13 @@ PAPER_DIR = "paper"
 LEDGER = os.path.join(PAPER_DIR, "ledger.csv")
 LAST_RUN = os.path.join(PAPER_DIR, "last_run.json")
 MIN_CLOSED_FOR_VERDICT = 100
+PAPER_SLIPPAGE = 0.001      # extra 0.1% haircut per round trip on top of fees and tax (real fills are worse)
+LIMIT_UP_GAP = 0.09         # open 9%+ above the signal close = locked limit-up, a real order would not fill
 STRAT_KEYS = ["V6", "V8", "V10", "V11"]
 COLS = ["strategy", "signal_date", "code", "name", "market", "status", "entry_date", "entry_price",
         "stop", "risk_frac", "exit_date", "exit_price", "exit_reason", "bars", "ret", "R",
         "last_close", "unreal_R", "bull", "bench_ret", "chip_foreign_lots", "chip_trust_lots",
-        "fed_expanding", "vix_close"]
+        "fed_expanding", "vix_close", "turnover20"]
 
 
 def strategy_cfgs():
@@ -39,16 +42,23 @@ def strategy_cfgs():
 
 
 def resolve(d, i, cfg):
-    """以最新資料重新模擬第 i 根 K 棒產生的訊號，回傳該筆交易目前狀態。"""
+    """以最新資料重新模擬第 i 根 K 棒產生的訊號，回傳該筆交易目前狀態。
+    v3 fill realism: a gap-up open of LIMIT_UP_GAP or more is "unfillable" (no trade), and every trade pays
+    PAPER_SLIPPAGE on top of the standard cost. Both apply to every open trade on every run."""
     n = len(d)
     j0 = i + 1
     if j0 >= n:
         return {"status": "pending"}
     o, h, l, c = d["Open"].values, d["High"].values, d["Low"].values, d["Close"].values
+    entry = float(o[j0])
+    if np.isfinite(entry) and np.isfinite(c[i]) and entry >= float(c[i]) * (1 + LIMIT_UP_GAP):
+        return {"status": "unfillable", "entry_date": d.index[j0].strftime("%Y-%m-%d"),
+                "entry_price": round(entry, 2), "exit_reason": "limit_up_open"}
     r = an.simulate_trade(o, h, l, c, d["ATR14"].values, i, cfg, d["MA20"].values)
     if r is None:
         return {"status": "invalid"}
-    entry, rf = float(o[j0]), r["risk_frac"]
+    rf = r["risk_frac"]
+    ret = r["ret"] - PAPER_SLIPPAGE
     out = {"entry_date": d.index[j0].strftime("%Y-%m-%d"), "entry_price": round(entry, 2),
            "stop": round(entry * (1 - rf), 2), "risk_frac": round(rf, 4),
            "last_close": round(float(c[-1]), 2)}
@@ -56,9 +66,9 @@ def resolve(d, i, cfg):
     if closed:
         out.update(status="closed", exit_date=d.index[j0 + r["bars"] - 1].strftime("%Y-%m-%d"),
                    exit_price=round(entry * (1 + r["ret"] + an.ROUND_TRIP_COST), 2),
-                   exit_reason=r["reason"], bars=r["bars"], ret=round(r["ret"], 4), R=round(r["R"], 3))
+                   exit_reason=r["reason"], bars=r["bars"], ret=round(ret, 4), R=round(ret / rf, 3))
     else:
-        ur = float(c[-1]) / entry - 1 - an.ROUND_TRIP_COST
+        ur = float(c[-1]) / entry - 1 - an.ROUND_TRIP_COST - PAPER_SLIPPAGE
         out.update(status="open", bars=n - j0, unreal_R=round(ur / rf, 3))
     return out
 
@@ -94,6 +104,7 @@ def process_stock(code, name, market, df, cfgs, open_rows, chips, env):
                 new_sigs.append({"strategy": key, "signal_date": sig_date, "code": code, "name": name.strip(),
                                  "market": market, "status": "pending", "bull": bull,
                                  "fed_expanding": fed_flag, "vix_close": macro.get("vix"),
+                                 "turnover20": round(float((d["Close"] * d["Volume"]).iloc[-20:].mean()), 0),
                                  "chip_foreign_lots": int(ch["foreign"] / 1000) if ch else None,
                                  "chip_trust_lots": int(ch["trust"] / 1000) if ch else None})
     return updates, new_sigs
@@ -274,6 +285,7 @@ def main():
 
     updates, new_sigs = {}, []
     fetched = 0
+    bars = []
     with ThreadPoolExecutor(max_workers=sc.CONFIG["max_workers"]) as ex:
         futs = {ex.submit(sc.fetch_stock_kline, session, code, market): (code, name, market)
                 for code, name, market in stock_list}
@@ -285,6 +297,7 @@ def main():
             if df is None or len(df) < 250:
                 continue
             fetched += 1
+            bars.append(archive.bar_row(code, name, market, df))
             chips = twse if market == "TWSE" else tpex
             upd, sigs = process_stock(code, name, market, df, cfgs, open_by.get(code, {}), chips, env)
             updates.update(upd)
@@ -300,6 +313,10 @@ def main():
         extra = regime.forward_lines(os.path.join(PAPER_DIR, "macro_log.csv"))
         extra += [""] + regime.macro_lines(env.get("macro")) + [""] + regime.evidence_lines()
         fh.write(build_report(ledger, date_str, extra))
+    try:
+        archive.save_daily(bars, stock_list)
+    except Exception as e:          # the archive must never break the daily run
+        print(f"⚠️ archive skipped: {type(e).__name__}: {e}")
     with open(LAST_RUN, "w", encoding="utf-8") as fh:
         json.dump(run_summary(env, new_sigs, ledger, len(stock_list), fetched), fh, ensure_ascii=False, indent=1)
     print(f"新訊號 {len(new_sigs)} 筆｜累計 {len(ledger)} 筆｜已存至 {PAPER_DIR}/")

@@ -1,0 +1,9 @@
+{
+  "note": "Add a row BEFORE running a new test. The honest t-bar is computed from the total number of trials.",
+  "experiments": [
+    {"date": "2026-10-23", "name": "Taiwan strategy variants V0-V11 (5y, pre-registered)", "trials": 12, "outcome": "V8, V10, V11 passed at t >= 2.7"},
+    {"date": "2026-10-23", "name": "US wide-universe strategy variants V0-V11 (2,612 stocks)", "trials": 12, "outcome": "none passed"},
+    {"date": "2026-10-24", "name": "Fed net liquidity 13-week (S&P 500, Nasdaq 100, TAIEX)", "trials": 3, "outcome": "none passed (t 1.56 to 1.65 vs 2.2)"},
+    {"date": "2026-10-24", "name": "13F institutional adds (growth, breadth)", "trials": 2, "outcome": "none passed (t 0.43 and 0.51)"}
+  ]
+}

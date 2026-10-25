@@ -20,6 +20,9 @@ Needs at least 100 closed trades in the combined, capped portfolio and at least 
 
 CONTINUE means one extension to 12 months, then GRADUATE or RETIRE. No third round.
 
+## Pace warning
+With 10 slots and an average hold of B trading days, about 10 / B trades finish per day. At B = 12 that is roughly 0.8 a day, so 100 closed trades may arrive only around April to May 2027. If G1 has not opened by 2027-10-22 the answer is RETIRE (not enough evidence). `paper/STATUS.md` shows the live pace estimate.
+
 ## After GRADUATE
 Sleeve starts at 2%, rises to 5% only after 6 live months in line with paper. Fed liquidity and VIX only ever shrink size. Circuit breaker: halt if the sleeve falls 25% from its peak, or if average live result after 50 live trades is below -0.15R.
 
