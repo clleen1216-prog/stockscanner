@@ -1,0 +1,46 @@
+name: US Strategy Research
+
+on:
+  workflow_dispatch:  # manual only: run it from the Actions tab
+    inputs:
+      universe:
+        description: "Stock list: wide (about 3000 liquid stocks) or sp500"
+        type: choice
+        options:
+          - wide
+          - sp500
+        default: wide
+
+permissions:
+  contents: write
+
+concurrency:
+  group: stockscanner-main-writes
+  cancel-in-progress: false
+
+jobs:
+  us-research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run US strategy research
+        env:
+          US_UNIVERSE: ${{ github.event.inputs.universe }}
+        run: python us_research.py
+
+      - name: Commit report to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add reports_us/
+          git diff --staged --quiet || (git commit -m "Add US strategy research report" && git pull --rebase && git push)
