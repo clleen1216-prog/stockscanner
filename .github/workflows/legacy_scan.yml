@@ -1,0 +1,44 @@
+name: Legacy v1 Scan (manual only)
+
+# The v1 daily scan measured -0.22R (t = -6.22) against random entry, so it is no longer scheduled.
+# Kept only so the old report can still be reproduced by hand.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: stockscanner-main-writes
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run legacy scanner
+        run: python stock_scanner.py
+
+      - name: Commit report (retry on conflict)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add reports/
+          git diff --staged --quiet || git commit -m "Add legacy scan report"
+          ok=0
+          for i in 1 2 3 4; do
+            if git pull --rebase && git push; then ok=1; break; fi
+            sleep $((i * 8))
+          done
+          [ "$ok" = 1 ]
