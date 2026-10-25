@@ -1,0 +1,65 @@
+name: Weekly Heartbeat
+
+# Sundays 10:00 Taipei (02:00 UTC). Fails (and opens an issue) if the pipeline looks stale or broken.
+# Also commits a timestamp so the repo never goes 60 days without activity.
+on:
+  schedule:
+    - cron: "0 2 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: stockscanner-main-writes
+  cancel-in-progress: false
+
+jobs:
+  heartbeat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Check pipeline health
+        id: beat
+        continue-on-error: true
+        run: python heartbeat.py
+
+      - name: Commit heartbeat (retry on conflict)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add paper/HEARTBEAT.txt
+          git diff --staged --quiet || git commit -m "Heartbeat $(date -u +%F)"
+          ok=0
+          for i in 1 2 3 4; do
+            if git pull --rebase && git push; then ok=1; break; fi
+            sleep $((i * 8))
+          done
+          [ "$ok" = 1 ]
+
+      - name: Open or update a health issue
+        if: steps.beat.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create pipeline-failure --color B60205 --force >/dev/null 2>&1 || true
+          url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          existing=$(gh issue list --label pipeline-failure --state open --json number --jq '.[0].number // empty')
+          body="Weekly heartbeat found a problem. Details are in the run log: $url"
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --label pipeline-failure --title "Pipeline health check failed" --body "$body"
+          fi
+          exit 1
