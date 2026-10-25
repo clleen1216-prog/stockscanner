@@ -14,6 +14,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: stockscanner-main-writes
+  cancel-in-progress: false
+
 jobs:
   thirteenf:
     runs-on: ubuntu-latest
