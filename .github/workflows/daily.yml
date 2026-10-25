@@ -1,27 +1,24 @@
-name: US Strategy Research
+name: Daily Paper Trading
 
+# One job does everything, so two workflows can never push at the same time.
+# Weekdays 17:30 Taipei (09:30 UTC), after the Taiwan market closes.
 on:
-  workflow_dispatch:  # manual only: run it from the Actions tab
-    inputs:
-      universe:
-        description: "Stock list: wide (about 3000 liquid stocks) or sp500"
-        type: choice
-        options:
-          - wide
-          - sp500
-        default: wide
+  schedule:
+    - cron: "30 9 * * 1-5"
+  workflow_dispatch:
 
 permissions:
   contents: write
+  issues: write
 
 concurrency:
   group: stockscanner-main-writes
   cancel-in-progress: false
 
 jobs:
-  us-research:
+  daily:
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
 
@@ -33,14 +30,36 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run US strategy research
-        env:
-          US_UNIVERSE: ${{ github.event.inputs.universe }}
-        run: python us_research.py
+      - name: Update paper trading ledger
+        run: python paper_trade.py
 
-      - name: Commit report to repo
+      - name: Build daily digest
+        run: python digest.py
+
+      - name: Commit and push (retry on conflict)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add reports_us/
-          git diff --staged --quiet || (git commit -m "Add US strategy research report" && git pull --rebase && git push)
+          git add paper/ reports/DIGEST.md
+          git diff --staged --quiet || git commit -m "Daily update $(date -u +%F)"
+          ok=0
+          for i in 1 2 3 4; do
+            if git pull --rebase && git push; then ok=1; break; fi
+            sleep $((i * 8))
+          done
+          [ "$ok" = 1 ]
+
+      - name: Open or update a failure issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create pipeline-failure --color B60205 --force >/dev/null 2>&1 || true
+          url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          existing=$(gh issue list --label pipeline-failure --state open --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "Daily job failed again: $url"
+          else
+            gh issue create --label pipeline-failure --title "Daily paper-trading job failed" \
+              --body "The daily job failed. Nothing else to do unless this repeats for several days. Run: $url"
+          fi
