@@ -243,6 +243,8 @@ def run_summary(env, new_sigs, ledger, n_stocks, n_fetched, bars=None):
         flat_share = round(float((b["open"] == b["close"]).mean()), 3)   # share of stocks whose last bar closed at its open
     return {
         "last_bar_date": last_bar_date, "flat_bar_share": flat_share,
+        "placeholders_dropped": sc.FETCH_STATS["placeholders_dropped"],
+        "duplicate_days_resolved": sc.FETCH_STATS["duplicate_days_resolved"],
         "finished_utc": datetime.now(timezone.utc).replace(tzinfo=None).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "twii_close": env.get("twii_close"), "twii_ma60": env.get("twii_ma60"),
         "twii_above_ma60": bool(env.get("is_day_bullish")), "sp500_overnight_pct": env.get("night_pct"),
@@ -309,6 +311,15 @@ def main():
             updates.update(upd)
             new_sigs += sigs
 
+    if not archive.is_plausible(bars):
+        # Provisional bars (open = close, no volume) would corrupt entry prices and signals. Touch nothing.
+        summary = run_summary(env, [], ledger, len(stock_list), fetched, bars)
+        summary["aborted"] = "latest bars look provisional; ledger left unchanged"
+        with open(LAST_RUN, "w", encoding="utf-8") as fh:
+            json.dump(summary, fh, ensure_ascii=False, indent=1)
+        print("❌ Latest bars look provisional (most stocks closed exactly at their open). Ledger left unchanged.")
+        return
+
     have = set(zip(ledger["strategy"], ledger["code"].astype(str), ledger["signal_date"]))
     new_sigs = [s for s in new_sigs if (s["strategy"], s["code"], s["signal_date"]) not in have]
     ledger = apply_updates(ledger, updates, new_sigs)
@@ -320,7 +331,8 @@ def main():
         extra += [""] + regime.macro_lines(env.get("macro")) + [""] + regime.evidence_lines()
         fh.write(build_report(ledger, date_str, extra))
     try:
-        archive.save_daily(bars, stock_list)
+        if archive.save_daily(bars, stock_list) is None:
+            print("ℹ️ archive not written (already saved today, or the bars look provisional)")
     except Exception as e:          # the archive must never break the daily run
         print(f"⚠️ archive skipped: {type(e).__name__}: {e}")
     with open(LAST_RUN, "w", encoding="utf-8") as fh:

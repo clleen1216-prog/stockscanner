@@ -34,6 +34,10 @@ def build_digest(run, ledger, status=None):
     L += ["", "## Pipeline health"]
     fetched, listed = run.get("stocks_fetched", 0), run.get("stocks_listed", 0)
     L.append(f"- Price data: {fetched} of {listed} stocks usable")
+    flat = run.get("flat_bar_share")
+    if flat is not None:
+        note = "" if flat <= 0.25 else " **(too high: the latest bars look provisional, signals from this run are not trusted)**"
+        L.append(f"- Latest price bar: {run.get('last_bar_date')}; {flat * 100:.1f}% of stocks closed exactly at their open{note}")
     L.append("- Fed liquidity feed: OK" if run.get("fed_ok")
              else f"- Fed liquidity feed: **NOT WORKING** ({run.get('fed_error') or 'no reason recorded'})")
     L += ["", "## Paper strategies",

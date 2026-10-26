@@ -229,6 +229,32 @@ def fetch_institutional_data():
 # ==============================================================================
 # 3. 日 K（還原權息，回測才準）
 # ==============================================================================
+FETCH_STATS = {"duplicate_days_resolved": 0, "placeholders_dropped": 0}
+
+
+def clean_bars(df):
+    """Yahoo can return, outside trading hours, an extra live-quote row for the latest day: open = high = low =
+    close and zero volume. Keeping the LAST duplicate (the old behaviour) replaced the real bar with it, so every
+    stock showed volume 0 and open = close (seen on the 2026-10-25 and 2026-10-26 manual runs).
+    Rules: (1) several rows for one date -> keep the one with the largest volume (the real bar);
+    (2) a trailing zero-volume flat row is a placeholder, not a trading day -> drop it."""
+    if df.index.has_duplicates:
+        FETCH_STATS["duplicate_days_resolved"] += 1
+        flat = df.reset_index()
+        flat.columns = ["_day"] + list(flat.columns[1:])
+        keep = flat.groupby("_day")["Volume"].idxmax()
+        df = flat.loc[keep].set_index("_day").sort_index()
+        df.index.name = None
+    while len(df) > 1:
+        last = df.iloc[-1]
+        if last["Volume"] == 0 and last["Open"] == last["High"] == last["Low"] == last["Close"]:
+            df = df.iloc[:-1]
+            FETCH_STATS["placeholders_dropped"] += 1
+        else:
+            break
+    return df
+
+
 def fetch_stock_kline(session, code, market="TWSE"):
     suffix = ".TW" if market == "TWSE" else ".TWO"
     url = f"https://query1.finance.yahoo.com/v8/finance/chart/{code}{suffix}"
@@ -247,7 +273,7 @@ def fetch_stock_kline(session, code, market="TWSE"):
         if adj is not None and len(adj) == len(df):
             df["Adj"] = adj
         df = df.dropna()
-        df = df[~df.index.duplicated(keep="last")]
+        df = clean_bars(df)
         if "Adj" in df.columns:
             factor = df["Adj"] / df["Close"]
             for col in ("Open", "High", "Low", "Close"):

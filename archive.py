@@ -24,11 +24,23 @@ def bar_row(code, name, market, df):
             "volume": int(last["Volume"]), "has_price": True}
 
 
+MAX_FLAT_SHARE = 0.25         # open == close for more than this share of stocks = provisional bars
+MAX_ZERO_VOLUME_SHARE = 0.25
+
+
+def is_plausible(bars):
+    """False when the day's bars look provisional (almost every stock flat, or with no volume)."""
+    if not bars:
+        return False
+    df = pd.DataFrame(bars)
+    return bool((df["open"] == df["close"]).mean() <= MAX_FLAT_SHARE and (df["volume"] == 0).mean() <= MAX_ZERO_VOLUME_SHARE)
+
+
 def save_daily(bars, stock_list, out_dir=OUT_DIR):
     """Write today's file once. Returns the path written, or None when there is nothing new to write.
     The file's date is the most common bar date, so a late or holiday run does not mislabel the day."""
-    if not bars:
-        return None
+    if not bars or not is_plausible(bars):
+        return None                                   # never freeze provisional data into the archive
     df = pd.DataFrame(bars)
     day = df["date"].mode().iloc[0]
     path = os.path.join(out_dir, f"{day}.csv.gz")
