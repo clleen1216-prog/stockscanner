@@ -31,6 +31,8 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Update paper trading ledger
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}   # optional; free key from fred.stlouisfed.org
         run: python paper_trade.py
 
       - name: Build daily digest
