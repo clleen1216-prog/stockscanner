@@ -61,16 +61,42 @@ def parse_fred_csv(sid, text):
     return out
 
 
+FRED_API_URL = "https://api.stlouisfed.org/fred/series/observations"
+FRED_TIMEOUT = 20           # seconds per request; the 2026-10-25 run timed out at 40 s on every try
+
+
+def parse_fred_json(sid, js):
+    """Parse the official FRED API answer ({"observations": [{"date": ..., "value": "123" or "."}]})."""
+    obs = js.get("observations") if isinstance(js, dict) else None
+    if not obs:
+        raise FredError(f"{sid}: API answer has no observations ({str(js)[:120]})")
+    df = pd.DataFrame(obs)[["date", "value"]]
+    df["date"] = pd.to_datetime(df["date"], errors="coerce")
+    df["value"] = pd.to_numeric(df["value"], errors="coerce")        # "." (missing) becomes NaN and is dropped
+    out = df.dropna().set_index("date")["value"].sort_index()
+    if len(out) < FRED_MIN_ROWS:
+        raise FredError(f"{sid}: only {len(out)} usable rows (need {FRED_MIN_ROWS})")
+    return out
+
+
 def fetch_fred(session, sid):
-    """Download one FRED series with retries. Raises FredError with the last reason if every try fails."""
+    """Download one FRED series. With a free FRED_API_KEY (repo secret) the official API is tried first, then the
+    public CSV. Alternates between the two routes over FRED_TRIES attempts and raises FredError with the last reason."""
+    key = os.environ.get("FRED_API_KEY", "").strip()
     last = None
     for attempt in range(1, FRED_TRIES + 1):
+        use_api = bool(key) and attempt % 2 == 1
         try:
-            r = session.get(FRED_URL.format(sid), headers=sc.HEADERS, timeout=40)
+            if use_api:
+                r = session.get(FRED_API_URL, params={"series_id": sid, "api_key": key, "file_type": "json",
+                                                      "observation_start": "2018-01-01"}, timeout=FRED_TIMEOUT)
+                r.raise_for_status()
+                return parse_fred_json(sid, r.json())
+            r = session.get(FRED_URL.format(sid), headers=sc.HEADERS, timeout=FRED_TIMEOUT)
             r.raise_for_status()
             return parse_fred_csv(sid, r.text)
-        except Exception as e:          # network error, HTTP error, bad body: all retried the same way
-            last = f"{type(e).__name__}: {e}"
+        except Exception as e:          # network error, HTTP error, bad body: all retried
+            last = f"{'api' if use_api else 'csv'} {type(e).__name__}: {str(e)[:160]}"
             if attempt < FRED_TRIES:
                 _sleep(FRED_BACKOFF * 2 ** (attempt - 1))
     raise FredError(f"{sid} failed after {FRED_TRIES} tries ({last})")

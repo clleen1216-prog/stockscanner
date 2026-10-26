@@ -232,11 +232,17 @@ def save_chips(twse, tpex):
                               for k, v in data.items()]).to_csv(path, index=False)
 
 
-def run_summary(env, new_sigs, ledger, n_stocks, n_fetched):
+def run_summary(env, new_sigs, ledger, n_stocks, n_fetched, bars=None):
     """Small machine-readable record of this run, read by digest.py and heartbeat.py."""
     macro = env.get("macro") or {}
     fed = macro.get("fed") or {}
+    last_bar_date, flat_share = None, None
+    if bars:
+        b = pd.DataFrame(bars)
+        last_bar_date = str(b["date"].mode().iloc[0])
+        flat_share = round(float((b["open"] == b["close"]).mean()), 3)   # share of stocks whose last bar closed at its open
     return {
+        "last_bar_date": last_bar_date, "flat_bar_share": flat_share,
         "finished_utc": datetime.now(timezone.utc).replace(tzinfo=None).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "twii_close": env.get("twii_close"), "twii_ma60": env.get("twii_ma60"),
         "twii_above_ma60": bool(env.get("is_day_bullish")), "sp500_overnight_pct": env.get("night_pct"),
@@ -318,7 +324,7 @@ def main():
     except Exception as e:          # the archive must never break the daily run
         print(f"⚠️ archive skipped: {type(e).__name__}: {e}")
     with open(LAST_RUN, "w", encoding="utf-8") as fh:
-        json.dump(run_summary(env, new_sigs, ledger, len(stock_list), fetched), fh, ensure_ascii=False, indent=1)
+        json.dump(run_summary(env, new_sigs, ledger, len(stock_list), fetched, bars), fh, ensure_ascii=False, indent=1)
     print(f"新訊號 {len(new_sigs)} 筆｜累計 {len(ledger)} 筆｜已存至 {PAPER_DIR}/")
 
 
