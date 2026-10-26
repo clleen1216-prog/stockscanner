@@ -2,7 +2,7 @@
 
 Paper trading only. No real money. Research, not investment advice.
 
-Last run finished: 2026-10-25T19:11:35Z (UTC)
+Last run finished: 2026-10-26T01:21:37Z (UTC)
 
 ## Market state
 - TAIEX 46041 vs 60-day average 46207: **below (weak)**
@@ -11,7 +11,7 @@ Last run finished: 2026-10-25T19:11:35Z (UTC)
 
 ## Pipeline health
 - Price data: 1964 of 1978 stocks usable
-- Fed liquidity feed: **NOT WORKING** (FredError: WALCL failed after 4 tries (ConnectionError: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Max retries exceeded with url: /graph/fredgraph.csv?id=WALCL (Caused by ReadTimeoutError("HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Read timed out. (read timeout=40)"))))
+- Fed liquidity feed: **NOT WORKING** (FredError: WALCL failed after 4 tries (csv ConnectionError: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Max retries exceeded with url: /graph/fredgraph.csv?id=WALCL (Caused by ReadTimeoutError("HTTPSConnec))
 
 ## Paper strategies
 A strategy needs 100 closed trades before any verdict. The decision rules are in PLAN.md; the monthly check writes paper/STATUS.md.
