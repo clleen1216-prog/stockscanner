@@ -1,19 +1,250 @@
 {
- "last_bar_date": "2026-10-22",
- "flat_bar_share": 0.069,
- "placeholders_dropped": 2162,
+ "last_bar_date": "2026-10-27",
+ "flat_bar_share": 0.088,
+ "placeholders_dropped": 175,
  "duplicate_days_resolved": 0,
- "finished_utc": "2026-10-26T10:57:14Z",
- "twii_close": 46041.4296875,
- "twii_ma60": 46207.0912109375,
+ "finished_utc": "2026-10-27T10:19:24Z",
+ "twii_close": 46096.23046875,
+ "twii_ma60": 46281.972395833334,
  "twii_above_ma60": false,
- "sp500_overnight_pct": -0.5186972294159098,
+ "sp500_overnight_pct": 0.6963807836358971,
  "size_mult": 1.0,
- "vix": 19.479999542236328,
+ "vix": 18.25,
  "fed_ok": false,
  "fed_error": "FredError: WALCL failed after 4 tries (csv ConnectionError: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Max retries exceeded with url: /graph/fredgraph.csv?id=WALCL (Caused by ReadTimeoutError(\"HTTPSConnec)",
- "stocks_listed": 1978,
- "stocks_fetched": 1964,
- "new_signals": [],
- "ledger_rows": 24
+ "stocks_listed": 1979,
+ "stocks_fetched": 1965,
+ "new_signals": [
+  {
+   "strategy": "V8",
+   "code": "1103",
+   "name": "嘉泥"
+  },
+  {
+   "strategy": "V6",
+   "code": "1402",
+   "name": "遠東新"
+  },
+  {
+   "strategy": "V6",
+   "code": "1532",
+   "name": "勤美"
+  },
+  {
+   "strategy": "V10",
+   "code": "1808",
+   "name": "潤隆"
+  },
+  {
+   "strategy": "V6",
+   "code": "2010",
+   "name": "春源"
+  },
+  {
+   "strategy": "V8",
+   "code": "2010",
+   "name": "春源"
+  },
+  {
+   "strategy": "V8",
+   "code": "2031",
+   "name": "新光鋼"
+  },
+  {
+   "strategy": "V10",
+   "code": "2204",
+   "name": "中華"
+  },
+  {
+   "strategy": "V11",
+   "code": "2328",
+   "name": "廣宇"
+  },
+  {
+   "strategy": "V8",
+   "code": "2379",
+   "name": "瑞昱"
+  },
+  {
+   "strategy": "V10",
+   "code": "2379",
+   "name": "瑞昱"
+  },
+  {
+   "strategy": "V10",
+   "code": "2468",
+   "name": "華經"
+  },
+  {
+   "strategy": "V6",
+   "code": "2520",
+   "name": "冠德"
+  },
+  {
+   "strategy": "V8",
+   "code": "2520",
+   "name": "冠德"
+  },
+  {
+   "strategy": "V10",
+   "code": "2520",
+   "name": "冠德"
+  },
+  {
+   "strategy": "V10",
+   "code": "2607",
+   "name": "榮運"
+  },
+  {
+   "strategy": "V10",
+   "code": "2618",
+   "name": "長榮航"
+  },
+  {
+   "strategy": "V6",
+   "code": "2820",
+   "name": "華票"
+  },
+  {
+   "strategy": "V10",
+   "code": "2885",
+   "name": "元大金"
+  },
+  {
+   "strategy": "V8",
+   "code": "2892",
+   "name": "第一金"
+  },
+  {
+   "strategy": "V8",
+   "code": "3005",
+   "name": "神基"
+  },
+  {
+   "strategy": "V10",
+   "code": "3029",
+   "name": "零壹"
+  },
+  {
+   "strategy": "V8",
+   "code": "3045",
+   "name": "台灣大"
+  },
+  {
+   "strategy": "V11",
+   "code": "3406",
+   "name": "玉晶光"
+  },
+  {
+   "strategy": "V8",
+   "code": "3592",
+   "name": "瑞鼎"
+  },
+  {
+   "strategy": "V10",
+   "code": "3702",
+   "name": "大聯大"
+  },
+  {
+   "strategy": "V10",
+   "code": "3705",
+   "name": "永信"
+  },
+  {
+   "strategy": "V6",
+   "code": "4540",
+   "name": "全球傳動"
+  },
+  {
+   "strategy": "V11",
+   "code": "4566",
+   "name": "時碩工業"
+  },
+  {
+   "strategy": "V11",
+   "code": "4720",
+   "name": "德淵"
+  },
+  {
+   "strategy": "V6",
+   "code": "6177",
+   "name": "達麗"
+  },
+  {
+   "strategy": "V11",
+   "code": "6277",
+   "name": "宏正"
+  },
+  {
+   "strategy": "V10",
+   "code": "8464",
+   "name": "億豐"
+  },
+  {
+   "strategy": "V8",
+   "code": "9917",
+   "name": "中保科"
+  },
+  {
+   "strategy": "V10",
+   "code": "1569",
+   "name": "濱川企業股份有限公司"
+  },
+  {
+   "strategy": "V10",
+   "code": "2221",
+   "name": "大甲永和機械工業股份有限公司"
+  },
+  {
+   "strategy": "V11",
+   "code": "3498",
+   "name": "陽程科技股份有限公司"
+  },
+  {
+   "strategy": "V11",
+   "code": "4533",
+   "name": "協易機械工業股份有限公司"
+  },
+  {
+   "strategy": "V10",
+   "code": "5228",
+   "name": "鈺鎧科技股份有限公司"
+  },
+  {
+   "strategy": "V10",
+   "code": "5426",
+   "name": "振發實業股份有限公司"
+  },
+  {
+   "strategy": "V8",
+   "code": "6140",
+   "name": "訊達電腦股份有限公司"
+  },
+  {
+   "strategy": "V10",
+   "code": "6221",
+   "name": "晉泰科技股份有限公司"
+  },
+  {
+   "strategy": "V10",
+   "code": "6245",
+   "name": "立端科技股份有限公司"
+  },
+  {
+   "strategy": "V8",
+   "code": "6751",
+   "name": "智聯服務股份有限公司"
+  },
+  {
+   "strategy": "V11",
+   "code": "6751",
+   "name": "智聯服務股份有限公司"
+  },
+  {
+   "strategy": "V11",
+   "code": "8089",
+   "name": "康全電訊股份有限公司"
+  }
+ ],
+ "ledger_rows": 70
 }
