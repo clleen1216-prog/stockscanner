@@ -1,19 +1,165 @@
 {
- "last_bar_date": "2026-10-27",
- "flat_bar_share": 0.088,
- "placeholders_dropped": 175,
+ "last_bar_date": "2026-10-28",
+ "flat_bar_share": 0.109,
+ "placeholders_dropped": 163,
  "duplicate_days_resolved": 0,
- "finished_utc": "2026-10-27T10:54:26Z",
- "twii_close": 46096.23046875,
- "twii_ma60": 46281.972395833334,
- "twii_above_ma60": false,
- "sp500_overnight_pct": 0.6963807836358971,
+ "finished_utc": "2026-10-28T10:26:28Z",
+ "twii_close": 47035.578125,
+ "twii_ma60": 46398.57903645833,
+ "twii_above_ma60": true,
+ "sp500_overnight_pct": 0.5969968881235133,
  "size_mult": 1.0,
- "vix": 18.25,
+ "vix": 17.59000015258789,
  "fed_ok": false,
  "fed_error": "FredError: WALCL failed after 4 tries (csv ConnectionError: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Max retries exceeded with url: /graph/fredgraph.csv?id=WALCL (Caused by ReadTimeoutError(\"HTTPSConnec)",
- "stocks_listed": 1979,
- "stocks_fetched": 1965,
- "new_signals": [],
- "ledger_rows": 70
+ "stocks_listed": 1983,
+ "stocks_fetched": 1969,
+ "new_signals": [
+  {
+   "strategy": "V10",
+   "code": "1709",
+   "name": "和益"
+  },
+  {
+   "strategy": "V8",
+   "code": "1808",
+   "name": "潤隆"
+  },
+  {
+   "strategy": "V6",
+   "code": "2025",
+   "name": "千興"
+  },
+  {
+   "strategy": "V8",
+   "code": "2328",
+   "name": "廣宇"
+  },
+  {
+   "strategy": "V8",
+   "code": "2393",
+   "name": "億光"
+  },
+  {
+   "strategy": "V10",
+   "code": "3006",
+   "name": "晶豪科"
+  },
+  {
+   "strategy": "V11",
+   "code": "3545",
+   "name": "敦泰"
+  },
+  {
+   "strategy": "V8",
+   "code": "4540",
+   "name": "全球傳動"
+  },
+  {
+   "strategy": "V10",
+   "code": "4540",
+   "name": "全球傳動"
+  },
+  {
+   "strategy": "V8",
+   "code": "6415",
+   "name": "矽力*-KY"
+  },
+  {
+   "strategy": "V11",
+   "code": "6415",
+   "name": "矽力*-KY"
+  },
+  {
+   "strategy": "V8",
+   "code": "6689",
+   "name": "伊雲谷"
+  },
+  {
+   "strategy": "V11",
+   "code": "6689",
+   "name": "伊雲谷"
+  },
+  {
+   "strategy": "V6",
+   "code": "8081",
+   "name": "致新"
+  },
+  {
+   "strategy": "V8",
+   "code": "1569",
+   "name": "濱川企業股份有限公司"
+  },
+  {
+   "strategy": "V11",
+   "code": "1569",
+   "name": "濱川企業股份有限公司"
+  },
+  {
+   "strategy": "V8",
+   "code": "3374",
+   "name": "精材科技股份有限公司"
+  },
+  {
+   "strategy": "V11",
+   "code": "3691",
+   "name": "碩禾電子材料股份有限公司"
+  },
+  {
+   "strategy": "V10",
+   "code": "4174",
+   "name": "台灣浩鼎生技股份有限公司"
+  },
+  {
+   "strategy": "V8",
+   "code": "4716",
+   "name": "大立高分子工業股份有限公司"
+  },
+  {
+   "strategy": "V11",
+   "code": "4716",
+   "name": "大立高分子工業股份有限公司"
+  },
+  {
+   "strategy": "V8",
+   "code": "4714",
+   "name": "永捷創新科技股份有限公司"
+  },
+  {
+   "strategy": "V11",
+   "code": "4714",
+   "name": "永捷創新科技股份有限公司"
+  },
+  {
+   "strategy": "V8",
+   "code": "6179",
+   "name": "亞通利大能源股份有限公司"
+  },
+  {
+   "strategy": "V8",
+   "code": "6233",
+   "name": "旺玖科技股份有限公司"
+  },
+  {
+   "strategy": "V10",
+   "code": "6233",
+   "name": "旺玖科技股份有限公司"
+  },
+  {
+   "strategy": "V11",
+   "code": "6233",
+   "name": "旺玖科技股份有限公司"
+  },
+  {
+   "strategy": "V10",
+   "code": "6418",
+   "name": "詠昇電子股份有限公司"
+  },
+  {
+   "strategy": "V10",
+   "code": "6425",
+   "name": "易發精機股份有限公司"
+  }
+ ],
+ "ledger_rows": 99
 }
