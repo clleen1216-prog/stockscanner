@@ -3,73 +3,17 @@
  "flat_bar_share": 0.1,
  "placeholders_dropped": 156,
  "duplicate_days_resolved": 0,
- "finished_utc": "2026-10-29T10:27:58Z",
+ "finished_utc": "2026-10-29T11:02:30Z",
  "twii_close": 46368.328125,
  "twii_ma60": 46505.8294921875,
  "twii_above_ma60": false,
  "sp500_overnight_pct": 0.27684824466034375,
  "size_mult": 1.0,
- "vix": 17.0,
+ "vix": 17.110000610351562,
  "fed_ok": false,
  "fed_error": "FredError: WALCL failed after 4 tries (csv ConnectionError: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Max retries exceeded with url: /graph/fredgraph.csv?id=WALCL (Caused by ReadTimeoutError(\"HTTPSConnec)",
  "stocks_listed": 1983,
  "stocks_fetched": 1969,
- "new_signals": [
-  {
-   "strategy": "V10",
-   "code": "2206",
-   "name": "三陽工業"
-  },
-  {
-   "strategy": "V10",
-   "code": "2352",
-   "name": "佳世達"
-  },
-  {
-   "strategy": "V10",
-   "code": "3035",
-   "name": "智原"
-  },
-  {
-   "strategy": "V10",
-   "code": "4770",
-   "name": "上品"
-  },
-  {
-   "strategy": "V10",
-   "code": "4967",
-   "name": "十銓"
-  },
-  {
-   "strategy": "V10",
-   "code": "9904",
-   "name": "寶成"
-  },
-  {
-   "strategy": "V10",
-   "code": "3105",
-   "name": "穩懋半導體股份有限公司"
-  },
-  {
-   "strategy": "V10",
-   "code": "4953",
-   "name": "緯致科技股份有限公司"
-  },
-  {
-   "strategy": "V10",
-   "code": "6811",
-   "name": "宏碁資訊服務股份有限公司"
-  },
-  {
-   "strategy": "V8",
-   "code": "8089",
-   "name": "康全電訊股份有限公司"
-  },
-  {
-   "strategy": "V10",
-   "code": "8099",
-   "name": "大同世界科技股份有限公司"
-  }
- ],
+ "new_signals": [],
  "ledger_rows": 110
 }
