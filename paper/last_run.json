@@ -3,98 +3,17 @@
  "flat_bar_share": 0.075,
  "placeholders_dropped": 160,
  "duplicate_days_resolved": 0,
- "finished_utc": "2026-10-30T10:27:28Z",
+ "finished_utc": "2026-10-30T11:00:47Z",
  "twii_close": 45211.828125,
  "twii_ma60": 46540.6974609375,
  "twii_above_ma60": false,
  "sp500_overnight_pct": -0.304621703691077,
  "size_mult": 1.0,
- "vix": 18.520000457763672,
+ "vix": 18.510000228881836,
  "fed_ok": false,
  "fed_error": "FredError: WALCL failed after 4 tries (csv ConnectionError: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Max retries exceeded with url: /graph/fredgraph.csv?id=WALCL (Caused by ReadTimeoutError(\"HTTPSConnec)",
  "stocks_listed": 1984,
  "stocks_fetched": 1970,
- "new_signals": [
-  {
-   "strategy": "V6",
-   "code": "1216",
-   "name": "統一"
-  },
-  {
-   "strategy": "V10",
-   "code": "2355",
-   "name": "敬鵬"
-  },
-  {
-   "strategy": "V8",
-   "code": "2412",
-   "name": "中華電"
-  },
-  {
-   "strategy": "V8",
-   "code": "2516",
-   "name": "新建"
-  },
-  {
-   "strategy": "V10",
-   "code": "2520",
-   "name": "冠德"
-  },
-  {
-   "strategy": "V8",
-   "code": "2603",
-   "name": "長榮"
-  },
-  {
-   "strategy": "V11",
-   "code": "2603",
-   "name": "長榮"
-  },
-  {
-   "strategy": "V6",
-   "code": "2606",
-   "name": "裕民"
-  },
-  {
-   "strategy": "V6",
-   "code": "2617",
-   "name": "台航"
-  },
-  {
-   "strategy": "V6",
-   "code": "2834",
-   "name": "臺企銀"
-  },
-  {
-   "strategy": "V6",
-   "code": "2897",
-   "name": "王道銀行"
-  },
-  {
-   "strategy": "V10",
-   "code": "2897",
-   "name": "王道銀行"
-  },
-  {
-   "strategy": "V10",
-   "code": "5269",
-   "name": "祥碩"
-  },
-  {
-   "strategy": "V8",
-   "code": "5013",
-   "name": "強新工業股份有限公司"
-  },
-  {
-   "strategy": "V11",
-   "code": "5013",
-   "name": "強新工業股份有限公司"
-  },
-  {
-   "strategy": "V10",
-   "code": "6140",
-   "name": "訊達電腦股份有限公司"
-  }
- ],
+ "new_signals": [],
  "ledger_rows": 126
 }
