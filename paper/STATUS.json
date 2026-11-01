@@ -1,0 +1,10 @@
+{
+ "state": "COLLECTING",
+ "reason": "gate G1 not open yet",
+ "asof": "2026-11-01",
+ "n_closed": 2,
+ "n_open": 10,
+ "n_dates": 1,
+ "mean_R": -0.72,
+ "t_clustered": 0.0
+}
