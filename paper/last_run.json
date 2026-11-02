@@ -1,19 +1,120 @@
 {
- "last_bar_date": "2026-10-30",
- "flat_bar_share": 0.075,
- "placeholders_dropped": 160,
+ "last_bar_date": "2026-11-02",
+ "flat_bar_share": 0.098,
+ "placeholders_dropped": 162,
  "duplicate_days_resolved": 0,
- "finished_utc": "2026-10-30T11:00:47Z",
- "twii_close": 45211.828125,
- "twii_ma60": 46540.6974609375,
+ "finished_utc": "2026-11-02T10:35:56Z",
+ "twii_close": 44920.140625,
+ "twii_ma60": 46566.25963541667,
  "twii_above_ma60": false,
- "sp500_overnight_pct": -0.304621703691077,
+ "sp500_overnight_pct": -1.8175287778868343,
  "size_mult": 1.0,
- "vix": 18.510000228881836,
+ "vix": 18.790000915527344,
  "fed_ok": false,
  "fed_error": "FredError: WALCL failed after 4 tries (csv ConnectionError: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Max retries exceeded with url: /graph/fredgraph.csv?id=WALCL (Caused by ReadTimeoutError(\"HTTPSConnec)",
- "stocks_listed": 1984,
- "stocks_fetched": 1970,
- "new_signals": [],
- "ledger_rows": 126
+ "stocks_listed": 1985,
+ "stocks_fetched": 1971,
+ "new_signals": [
+  {
+   "strategy": "V8",
+   "code": "1416",
+   "name": "廣豐"
+  },
+  {
+   "strategy": "V11",
+   "code": "1416",
+   "name": "廣豐"
+  },
+  {
+   "strategy": "V8",
+   "code": "1528",
+   "name": "恩德"
+  },
+  {
+   "strategy": "V10",
+   "code": "2023",
+   "name": "燁輝"
+  },
+  {
+   "strategy": "V10",
+   "code": "2609",
+   "name": "陽明"
+  },
+  {
+   "strategy": "V10",
+   "code": "3518",
+   "name": "柏騰"
+  },
+  {
+   "strategy": "V8",
+   "code": "6112",
+   "name": "邁達特"
+  },
+  {
+   "strategy": "V10",
+   "code": "6902",
+   "name": "GOGOLOOK"
+  },
+  {
+   "strategy": "V10",
+   "code": "3268",
+   "name": "海德威電子工業股份有限公司"
+  },
+  {
+   "strategy": "V8",
+   "code": "4741",
+   "name": "泓瀚科技股份有限公司"
+  },
+  {
+   "strategy": "V11",
+   "code": "4741",
+   "name": "泓瀚科技股份有限公司"
+  },
+  {
+   "strategy": "V8",
+   "code": "6221",
+   "name": "晉泰科技股份有限公司"
+  },
+  {
+   "strategy": "V11",
+   "code": "6221",
+   "name": "晉泰科技股份有限公司"
+  },
+  {
+   "strategy": "V8",
+   "code": "6234",
+   "name": "高僑自動化科技股份有限公司"
+  },
+  {
+   "strategy": "V11",
+   "code": "6234",
+   "name": "高僑自動化科技股份有限公司"
+  },
+  {
+   "strategy": "V8",
+   "code": "6425",
+   "name": "易發精機股份有限公司"
+  },
+  {
+   "strategy": "V11",
+   "code": "6425",
+   "name": "易發精機股份有限公司"
+  },
+  {
+   "strategy": "V8",
+   "code": "6609",
+   "name": "台灣瀧澤科技股份有限公司"
+  },
+  {
+   "strategy": "V11",
+   "code": "6609",
+   "name": "台灣瀧澤科技股份有限公司"
+  },
+  {
+   "strategy": "V11",
+   "code": "8099",
+   "name": "大同世界科技股份有限公司"
+  }
+ ],
+ "ledger_rows": 146
 }
