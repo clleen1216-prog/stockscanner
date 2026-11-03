@@ -1,19 +1,50 @@
 {
- "last_bar_date": "2026-11-02",
- "flat_bar_share": 0.098,
- "placeholders_dropped": 162,
+ "last_bar_date": "2026-11-03",
+ "flat_bar_share": 0.045,
+ "placeholders_dropped": 173,
  "duplicate_days_resolved": 0,
- "finished_utc": "2026-11-02T11:14:29Z",
- "twii_close": 44920.140625,
- "twii_ma60": 46566.25963541667,
+ "finished_utc": "2026-11-03T10:33:12Z",
+ "twii_close": 43307.5390625,
+ "twii_ma60": 46565.374283854166,
  "twii_above_ma60": false,
- "sp500_overnight_pct": -1.8175287778868343,
- "size_mult": 1.0,
- "vix": 18.90999984741211,
+ "sp500_overnight_pct": -0.5101525813317354,
+ "size_mult": 0.75,
+ "vix": 21.280000686645508,
  "fed_ok": false,
  "fed_error": "FredError: WALCL failed after 4 tries (csv ConnectionError: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Max retries exceeded with url: /graph/fredgraph.csv?id=WALCL (Caused by ReadTimeoutError(\"HTTPSConnec)",
  "stocks_listed": 1985,
  "stocks_fetched": 1971,
- "new_signals": [],
- "ledger_rows": 146
+ "new_signals": [
+  {
+   "strategy": "V8",
+   "code": "6467",
+   "name": "泰合"
+  },
+  {
+   "strategy": "V10",
+   "code": "5013",
+   "name": "強新工業股份有限公司"
+  },
+  {
+   "strategy": "V8",
+   "code": "5202",
+   "name": "力新國際科技股份有限公司"
+  },
+  {
+   "strategy": "V10",
+   "code": "5202",
+   "name": "力新國際科技股份有限公司"
+  },
+  {
+   "strategy": "V11",
+   "code": "5202",
+   "name": "力新國際科技股份有限公司"
+  },
+  {
+   "strategy": "V8",
+   "code": "8099",
+   "name": "大同世界科技股份有限公司"
+  }
+ ],
+ "ledger_rows": 152
 }
