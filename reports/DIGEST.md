@@ -2,7 +2,7 @@
 
 Paper trading only. No real money. Research, not investment advice.
 
-Last run finished: 2026-11-03T10:33:12Z (UTC)
+Last run finished: 2026-11-03T11:06:59Z (UTC)
 
 ## Market state
 - TAIEX 43308 vs 60-day average 46565: **below (weak)**
@@ -28,10 +28,7 @@ A strategy needs 100 closed trades before any verdict. The decision rules are in
 - State: **COLLECTING** as of 2026-11-01 (gate G1 not open yet)
 - Capped sleeve: 2 closed trades, 1 signal dates
 
-## New signals today (6), simulated entry at next open
-- V8: 6467 泰合, 5202 力新國際科技股份有限公司, 8099 大同世界科技股份有限公司
-- V10: 5013 強新工業股份有限公司, 5202 力新國際科技股份有限公司
-- V11: 5202 力新國際科技股份有限公司
-- Picked by more than one strategy (not independent evidence): 5202
+## New signals today (0), simulated entry at next open
+- None
 
 Full detail: paper/PAPER_REPORT.md
