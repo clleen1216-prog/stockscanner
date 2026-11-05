@@ -1,135 +1,19 @@
 {
- "last_bar_date": "2026-11-04",
- "flat_bar_share": 0.068,
- "placeholders_dropped": 175,
+ "last_bar_date": "2026-11-05",
+ "flat_bar_share": 0.05,
+ "placeholders_dropped": 156,
  "duplicate_days_resolved": 0,
- "finished_utc": "2026-11-04T11:30:49Z",
- "twii_close": 42948.91015625,
- "twii_ma60": 46537.662760416664,
+ "finished_utc": "2026-11-05T10:37:42Z",
+ "twii_close": 41574.71875,
+ "twii_ma60": 46490.62975260417,
  "twii_above_ma60": false,
- "sp500_overnight_pct": 0.36491924427315414,
+ "sp500_overnight_pct": 1.5814699659663978,
  "size_mult": 1.0,
- "vix": 18.280000686645508,
+ "vix": 16.8799991607666,
  "fed_ok": false,
  "fed_error": "FredError: WALCL failed after 4 tries (csv ConnectionError: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Max retries exceeded with url: /graph/fredgraph.csv?id=WALCL (Caused by ReadTimeoutError(\"HTTPSConnec)",
  "stocks_listed": 1985,
- "stocks_fetched": 1971,
- "new_signals": [
-  {
-   "strategy": "V11",
-   "code": "1528",
-   "name": "恩德"
-  },
-  {
-   "strategy": "V10",
-   "code": "1710",
-   "name": "東聯"
-  },
-  {
-   "strategy": "V8",
-   "code": "2033",
-   "name": "佳大"
-  },
-  {
-   "strategy": "V10",
-   "code": "2033",
-   "name": "佳大"
-  },
-  {
-   "strategy": "V11",
-   "code": "2033",
-   "name": "佳大"
-  },
-  {
-   "strategy": "V8",
-   "code": "2465",
-   "name": "麗臺"
-  },
-  {
-   "strategy": "V11",
-   "code": "2465",
-   "name": "麗臺"
-  },
-  {
-   "strategy": "V10",
-   "code": "2609",
-   "name": "陽明"
-  },
-  {
-   "strategy": "V10",
-   "code": "2834",
-   "name": "臺企銀"
-  },
-  {
-   "strategy": "V8",
-   "code": "3321",
-   "name": "同泰"
-  },
-  {
-   "strategy": "V10",
-   "code": "6467",
-   "name": "泰合"
-  },
-  {
-   "strategy": "V10",
-   "code": "8201",
-   "name": "無敵"
-  },
-  {
-   "strategy": "V8",
-   "code": "9933",
-   "name": "中鼎"
-  },
-  {
-   "strategy": "V11",
-   "code": "9933",
-   "name": "中鼎"
-  },
-  {
-   "strategy": "V11",
-   "code": "3147",
-   "name": "大綜電腦系統股份有限公司"
-  },
-  {
-   "strategy": "V10",
-   "code": "3379",
-   "name": "彬台科技股份有限公司"
-  },
-  {
-   "strategy": "V11",
-   "code": "3691",
-   "name": "碩禾電子材料股份有限公司"
-  },
-  {
-   "strategy": "V10",
-   "code": "4533",
-   "name": "協易機械工業股份有限公司"
-  },
-  {
-   "strategy": "V10",
-   "code": "5460",
-   "name": "同協電子股份有限公司"
-  },
-  {
-   "strategy": "V10",
-   "code": "6150",
-   "name": "撼訊科技股份有限公司"
-  },
-  {
-   "strategy": "V8",
-   "code": "6148",
-   "name": "驊宏資通股份有限公司"
-  },
-  {
-   "strategy": "V11",
-   "code": "6148",
-   "name": "驊宏資通股份有限公司"
-  },
-  {
-   "strategy": "V10",
-   "code": "8437",
-   "name": "大地幼教股份有限公司"
-  }
- ],
+ "stocks_fetched": 1970,
+ "new_signals": [],
  "ledger_rows": 175
 }
