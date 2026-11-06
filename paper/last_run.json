@@ -3,53 +3,17 @@
  "flat_bar_share": 0.058,
  "placeholders_dropped": 164,
  "duplicate_days_resolved": 0,
- "finished_utc": "2026-11-06T10:38:02Z",
+ "finished_utc": "2026-11-06T11:18:02Z",
  "twii_close": 39701.640625,
  "twii_ma60": 46415.225260416664,
  "twii_above_ma60": false,
  "sp500_overnight_pct": -4.35565981430297,
  "size_mult": 0.75,
- "vix": 26.40999984741211,
+ "vix": 26.829999923706055,
  "fed_ok": false,
  "fed_error": "FredError: WALCL failed after 4 tries (csv ConnectionError: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Max retries exceeded with url: /graph/fredgraph.csv?id=WALCL (Caused by ReadTimeoutError(\"HTTPSConnec)",
  "stocks_listed": 1984,
  "stocks_fetched": 1970,
- "new_signals": [
-  {
-   "strategy": "V8",
-   "code": "4155",
-   "name": "訊映"
-  },
-  {
-   "strategy": "V8",
-   "code": "6112",
-   "name": "邁達特"
-  },
-  {
-   "strategy": "V10",
-   "code": "6136",
-   "name": "富爾特"
-  },
-  {
-   "strategy": "V10",
-   "code": "6467",
-   "name": "泰合"
-  },
-  {
-   "strategy": "V8",
-   "code": "6782",
-   "name": "視陽"
-  },
-  {
-   "strategy": "V11",
-   "code": "6782",
-   "name": "視陽"
-  },
-  {
-   "strategy": "V11",
-   "code": "3287",
-   "name": "廣寰科技股份有限公司"
-  }
- ],
+ "new_signals": [],
  "ledger_rows": 182
 }
