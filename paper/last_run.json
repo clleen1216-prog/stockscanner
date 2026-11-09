@@ -1,19 +1,70 @@
 {
- "last_bar_date": "2026-11-06",
- "flat_bar_share": 0.058,
- "placeholders_dropped": 164,
+ "last_bar_date": "2026-11-09",
+ "flat_bar_share": 0.069,
+ "placeholders_dropped": 148,
  "duplicate_days_resolved": 0,
- "finished_utc": "2026-11-06T11:18:02Z",
- "twii_close": 39701.640625,
- "twii_ma60": 46415.225260416664,
+ "finished_utc": "2026-11-09T10:32:23Z",
+ "twii_close": 41661.69921875,
+ "twii_ma60": 46360.77421875,
  "twii_above_ma60": false,
- "sp500_overnight_pct": -4.35565981430297,
+ "sp500_overnight_pct": 0.3145326640212831,
  "size_mult": 0.75,
- "vix": 26.829999923706055,
+ "vix": 23.799999237060547,
  "fed_ok": false,
  "fed_error": "FredError: WALCL failed after 4 tries (csv ConnectionError: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Max retries exceeded with url: /graph/fredgraph.csv?id=WALCL (Caused by ReadTimeoutError(\"HTTPSConnec)",
  "stocks_listed": 1984,
  "stocks_fetched": 1970,
- "new_signals": [],
- "ledger_rows": 182
+ "new_signals": [
+  {
+   "strategy": "V8",
+   "code": "1789",
+   "name": "神隆"
+  },
+  {
+   "strategy": "V10",
+   "code": "1789",
+   "name": "神隆"
+  },
+  {
+   "strategy": "V8",
+   "code": "3703",
+   "name": "欣陸"
+  },
+  {
+   "strategy": "V10",
+   "code": "9933",
+   "name": "中鼎"
+  },
+  {
+   "strategy": "V11",
+   "code": "1742",
+   "name": "台灣蠟品股份有限公司"
+  },
+  {
+   "strategy": "V8",
+   "code": "3466",
+   "name": "德晉科技股份有限公司"
+  },
+  {
+   "strategy": "V10",
+   "code": "3466",
+   "name": "德晉科技股份有限公司"
+  },
+  {
+   "strategy": "V8",
+   "code": "3691",
+   "name": "碩禾電子材料股份有限公司"
+  },
+  {
+   "strategy": "V11",
+   "code": "3691",
+   "name": "碩禾電子材料股份有限公司"
+  },
+  {
+   "strategy": "V10",
+   "code": "6245",
+   "name": "立端科技股份有限公司"
+  }
+ ],
+ "ledger_rows": 192
 }
