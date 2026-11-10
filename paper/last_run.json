@@ -3,73 +3,17 @@
  "flat_bar_share": 0.078,
  "placeholders_dropped": 152,
  "duplicate_days_resolved": 0,
- "finished_utc": "2026-11-10T10:33:49Z",
+ "finished_utc": "2026-11-10T11:05:39Z",
  "twii_close": 42711.921875,
  "twii_ma60": 46320.627604166664,
  "twii_above_ma60": false,
  "sp500_overnight_pct": 2.3462568265193218,
- "size_mult": 1.0,
- "vix": 19.889999389648438,
+ "size_mult": 0.75,
+ "vix": 20.100000381469727,
  "fed_ok": false,
  "fed_error": "FredError: WALCL failed after 4 tries (csv ConnectionError: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Max retries exceeded with url: /graph/fredgraph.csv?id=WALCL (Caused by ReadTimeoutError(\"HTTPSConnec)",
  "stocks_listed": 1984,
  "stocks_fetched": 1971,
- "new_signals": [
-  {
-   "strategy": "V8",
-   "code": "2618",
-   "name": "長榮航"
-  },
-  {
-   "strategy": "V10",
-   "code": "3029",
-   "name": "零壹"
-  },
-  {
-   "strategy": "V10",
-   "code": "3049",
-   "name": "精金"
-  },
-  {
-   "strategy": "V8",
-   "code": "4426",
-   "name": "利勤"
-  },
-  {
-   "strategy": "V11",
-   "code": "6112",
-   "name": "邁達特"
-  },
-  {
-   "strategy": "V10",
-   "code": "3105",
-   "name": "穩懋半導體股份有限公司"
-  },
-  {
-   "strategy": "V8",
-   "code": "3147",
-   "name": "大綜電腦系統股份有限公司"
-  },
-  {
-   "strategy": "V11",
-   "code": "3147",
-   "name": "大綜電腦系統股份有限公司"
-  },
-  {
-   "strategy": "V8",
-   "code": "5230",
-   "name": "雷笛克光學股份有限公司"
-  },
-  {
-   "strategy": "V11",
-   "code": "5230",
-   "name": "雷笛克光學股份有限公司"
-  },
-  {
-   "strategy": "V10",
-   "code": "6150",
-   "name": "撼訊科技股份有限公司"
-  }
- ],
+ "new_signals": [],
  "ledger_rows": 203
 }
