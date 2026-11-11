@@ -3,163 +3,17 @@
  "flat_bar_share": 0.081,
  "placeholders_dropped": 158,
  "duplicate_days_resolved": 0,
- "finished_utc": "2026-11-11T10:36:47Z",
+ "finished_utc": "2026-11-11T11:14:53Z",
  "twii_close": 44257.1484375,
  "twii_ma60": 46299.61223958333,
  "twii_above_ma60": false,
  "sp500_overnight_pct": -0.38423836282327484,
  "size_mult": 1.0,
- "vix": 18.709999084472656,
+ "vix": 18.6200008392334,
  "fed_ok": false,
  "fed_error": "FredError: WALCL failed after 4 tries (csv ConnectionError: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Max retries exceeded with url: /graph/fredgraph.csv?id=WALCL (Caused by ReadTimeoutError(\"HTTPSConnec)",
  "stocks_listed": 1984,
  "stocks_fetched": 1971,
- "new_signals": [
-  {
-   "strategy": "V8",
-   "code": "1528",
-   "name": "恩德"
-  },
-  {
-   "strategy": "V11",
-   "code": "1528",
-   "name": "恩德"
-  },
-  {
-   "strategy": "V8",
-   "code": "2034",
-   "name": "允強"
-  },
-  {
-   "strategy": "V8",
-   "code": "2355",
-   "name": "敬鵬"
-  },
-  {
-   "strategy": "V11",
-   "code": "2355",
-   "name": "敬鵬"
-  },
-  {
-   "strategy": "V8",
-   "code": "2453",
-   "name": "凌群"
-  },
-  {
-   "strategy": "V8",
-   "code": "2466",
-   "name": "冠西電"
-  },
-  {
-   "strategy": "V8",
-   "code": "2471",
-   "name": "資通"
-  },
-  {
-   "strategy": "V8",
-   "code": "3029",
-   "name": "零壹"
-  },
-  {
-   "strategy": "V11",
-   "code": "3029",
-   "name": "零壹"
-  },
-  {
-   "strategy": "V10",
-   "code": "3617",
-   "name": "碩天"
-  },
-  {
-   "strategy": "V10",
-   "code": "4927",
-   "name": "泰鼎-KY"
-  },
-  {
-   "strategy": "V10",
-   "code": "5521",
-   "name": "工信"
-  },
-  {
-   "strategy": "V10",
-   "code": "6112",
-   "name": "邁達特"
-  },
-  {
-   "strategy": "V10",
-   "code": "9904",
-   "name": "寶成"
-  },
-  {
-   "strategy": "V10",
-   "code": "3147",
-   "name": "大綜電腦系統股份有限公司"
-  },
-  {
-   "strategy": "V8",
-   "code": "4174",
-   "name": "台灣浩鼎生技股份有限公司"
-  },
-  {
-   "strategy": "V11",
-   "code": "4174",
-   "name": "台灣浩鼎生技股份有限公司"
-  },
-  {
-   "strategy": "V8",
-   "code": "4577",
-   "name": "達航科技股份有限公司"
-  },
-  {
-   "strategy": "V11",
-   "code": "4577",
-   "name": "達航科技股份有限公司"
-  },
-  {
-   "strategy": "V8",
-   "code": "6150",
-   "name": "撼訊科技股份有限公司"
-  },
-  {
-   "strategy": "V11",
-   "code": "6150",
-   "name": "撼訊科技股份有限公司"
-  },
-  {
-   "strategy": "V8",
-   "code": "6221",
-   "name": "晉泰科技股份有限公司"
-  },
-  {
-   "strategy": "V11",
-   "code": "6221",
-   "name": "晉泰科技股份有限公司"
-  },
-  {
-   "strategy": "V8",
-   "code": "6234",
-   "name": "高僑自動化科技股份有限公司"
-  },
-  {
-   "strategy": "V11",
-   "code": "6234",
-   "name": "高僑自動化科技股份有限公司"
-  },
-  {
-   "strategy": "V8",
-   "code": "6697",
-   "name": "東捷資訊服務股份有限公司"
-  },
-  {
-   "strategy": "V11",
-   "code": "6697",
-   "name": "東捷資訊服務股份有限公司"
-  },
-  {
-   "strategy": "V11",
-   "code": "8089",
-   "name": "康全電訊股份有限公司"
-  }
- ],
+ "new_signals": [],
  "ledger_rows": 232
 }
