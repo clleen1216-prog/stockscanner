@@ -3,88 +3,17 @@
  "flat_bar_share": 0.078,
  "placeholders_dropped": 167,
  "duplicate_days_resolved": 0,
- "finished_utc": "2026-11-12T10:37:05Z",
+ "finished_utc": "2026-11-12T11:20:21Z",
  "twii_close": 43091.87109375,
  "twii_ma60": 46250.785416666666,
  "twii_above_ma60": false,
  "sp500_overnight_pct": 1.3090097199449646,
  "size_mult": 1.0,
- "vix": 18.229999542236328,
+ "vix": 18.31999969482422,
  "fed_ok": false,
  "fed_error": "FredError: WALCL failed after 4 tries (csv ConnectionError: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Max retries exceeded with url: /graph/fredgraph.csv?id=WALCL (Caused by ReadTimeoutError(\"HTTPSConnec)",
  "stocks_listed": 1984,
  "stocks_fetched": 1971,
- "new_signals": [
-  {
-   "strategy": "V10",
-   "code": "2471",
-   "name": "資通"
-  },
-  {
-   "strategy": "V8",
-   "code": "3701",
-   "name": "大眾控"
-  },
-  {
-   "strategy": "V11",
-   "code": "3701",
-   "name": "大眾控"
-  },
-  {
-   "strategy": "V8",
-   "code": "3715",
-   "name": "定穎投控"
-  },
-  {
-   "strategy": "V10",
-   "code": "4426",
-   "name": "利勤"
-  },
-  {
-   "strategy": "V10",
-   "code": "4904",
-   "name": "遠傳"
-  },
-  {
-   "strategy": "V8",
-   "code": "6152",
-   "name": "百一"
-  },
-  {
-   "strategy": "V10",
-   "code": "6152",
-   "name": "百一"
-  },
-  {
-   "strategy": "V8",
-   "code": "3379",
-   "name": "彬台科技股份有限公司"
-  },
-  {
-   "strategy": "V11",
-   "code": "3379",
-   "name": "彬台科技股份有限公司"
-  },
-  {
-   "strategy": "V6",
-   "code": "3374",
-   "name": "精材科技股份有限公司"
-  },
-  {
-   "strategy": "V10",
-   "code": "3691",
-   "name": "碩禾電子材料股份有限公司"
-  },
-  {
-   "strategy": "V8",
-   "code": "4105",
-   "name": "台灣東洋藥品工業股份有限公司"
-  },
-  {
-   "strategy": "V10",
-   "code": "6617",
-   "name": "共信醫藥科技控股股份有限公司"
-  }
- ],
+ "new_signals": [],
  "ledger_rows": 246
 }
