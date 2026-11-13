@@ -1,19 +1,170 @@
 {
- "last_bar_date": "2026-11-12",
- "flat_bar_share": 0.078,
- "placeholders_dropped": 167,
+ "last_bar_date": "2026-11-13",
+ "flat_bar_share": 0.083,
+ "placeholders_dropped": 170,
  "duplicate_days_resolved": 0,
- "finished_utc": "2026-11-12T11:20:21Z",
- "twii_close": 43091.87109375,
- "twii_ma60": 46250.785416666666,
+ "finished_utc": "2026-11-13T10:35:27Z",
+ "twii_close": 43675.12109375,
+ "twii_ma60": 46215.187239583334,
  "twii_above_ma60": false,
- "sp500_overnight_pct": 1.3090097199449646,
+ "sp500_overnight_pct": -0.3540968016256807,
  "size_mult": 1.0,
- "vix": 18.31999969482422,
+ "vix": 18.350000381469727,
  "fed_ok": false,
  "fed_error": "FredError: WALCL failed after 4 tries (csv ConnectionError: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Max retries exceeded with url: /graph/fredgraph.csv?id=WALCL (Caused by ReadTimeoutError(\"HTTPSConnec)",
- "stocks_listed": 1984,
- "stocks_fetched": 1971,
- "new_signals": [],
- "ledger_rows": 246
+ "stocks_listed": 1983,
+ "stocks_fetched": 1970,
+ "new_signals": [
+  {
+   "strategy": "V8",
+   "code": "1476",
+   "name": "儒鴻"
+  },
+  {
+   "strategy": "V11",
+   "code": "1476",
+   "name": "儒鴻"
+  },
+  {
+   "strategy": "V10",
+   "code": "1789",
+   "name": "神隆"
+  },
+  {
+   "strategy": "V10",
+   "code": "2355",
+   "name": "敬鵬"
+  },
+  {
+   "strategy": "V10",
+   "code": "2453",
+   "name": "凌群"
+  },
+  {
+   "strategy": "V11",
+   "code": "2480",
+   "name": "敦陽科"
+  },
+  {
+   "strategy": "V6",
+   "code": "2597",
+   "name": "潤弘"
+  },
+  {
+   "strategy": "V10",
+   "code": "2611",
+   "name": "志信"
+  },
+  {
+   "strategy": "V8",
+   "code": "2816",
+   "name": "旺旺保"
+  },
+  {
+   "strategy": "V10",
+   "code": "3035",
+   "name": "智原"
+  },
+  {
+   "strategy": "V10",
+   "code": "3049",
+   "name": "精金"
+  },
+  {
+   "strategy": "V8",
+   "code": "3617",
+   "name": "碩天"
+  },
+  {
+   "strategy": "V11",
+   "code": "6108",
+   "name": "競國"
+  },
+  {
+   "strategy": "V10",
+   "code": "6589",
+   "name": "台康生技"
+  },
+  {
+   "strategy": "V8",
+   "code": "6689",
+   "name": "伊雲谷"
+  },
+  {
+   "strategy": "V11",
+   "code": "6689",
+   "name": "伊雲谷"
+  },
+  {
+   "strategy": "V10",
+   "code": "6757",
+   "name": "台灣虎航"
+  },
+  {
+   "strategy": "V8",
+   "code": "3374",
+   "name": "精材科技股份有限公司"
+  },
+  {
+   "strategy": "V11",
+   "code": "3374",
+   "name": "精材科技股份有限公司"
+  },
+  {
+   "strategy": "V8",
+   "code": "4533",
+   "name": "協易機械工業股份有限公司"
+  },
+  {
+   "strategy": "V11",
+   "code": "4533",
+   "name": "協易機械工業股份有限公司"
+  },
+  {
+   "strategy": "V11",
+   "code": "5209",
+   "name": "新鼎系統股份有限公司"
+  },
+  {
+   "strategy": "V11",
+   "code": "6140",
+   "name": "訊達電腦股份有限公司"
+  },
+  {
+   "strategy": "V8",
+   "code": "6690",
+   "name": "安碁資訊股份有限公司"
+  },
+  {
+   "strategy": "V11",
+   "code": "6690",
+   "name": "安碁資訊股份有限公司"
+  },
+  {
+   "strategy": "V10",
+   "code": "6697",
+   "name": "東捷資訊服務股份有限公司"
+  },
+  {
+   "strategy": "V8",
+   "code": "7767",
+   "name": "仁大資訊股份有限公司"
+  },
+  {
+   "strategy": "V11",
+   "code": "7767",
+   "name": "仁大資訊股份有限公司"
+  },
+  {
+   "strategy": "V8",
+   "code": "8272",
+   "name": "全景軟體股份有限公司"
+  },
+  {
+   "strategy": "V11",
+   "code": "8272",
+   "name": "全景軟體股份有限公司"
+  }
+ ],
+ "ledger_rows": 276
 }
