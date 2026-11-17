@@ -1,19 +1,40 @@
 {
- "last_bar_date": "2026-11-16",
- "flat_bar_share": 0.052,
- "placeholders_dropped": 163,
+ "last_bar_date": "2026-11-17",
+ "flat_bar_share": 0.091,
+ "placeholders_dropped": 168,
  "duplicate_days_resolved": 0,
- "finished_utc": "2026-11-16T11:38:17Z",
- "twii_close": 41040.078125,
- "twii_ma60": 46134.900716145836,
+ "finished_utc": "2026-11-17T11:18:27Z",
+ "twii_close": 40092.109375,
+ "twii_ma60": 46047.95787760417,
  "twii_above_ma60": false,
- "sp500_overnight_pct": -0.40474660007389085,
- "size_mult": 1.0,
- "vix": 19.979999542236328,
+ "sp500_overnight_pct": -1.9186248490601354,
+ "size_mult": 0.75,
+ "vix": 23.479999542236328,
  "fed_ok": false,
  "fed_error": "FredError: WALCL failed after 4 tries (csv ConnectionError: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Max retries exceeded with url: /graph/fredgraph.csv?id=WALCL (Caused by ReadTimeoutError(\"HTTPSConnec)",
- "stocks_listed": 1984,
- "stocks_fetched": 1971,
- "new_signals": [],
- "ledger_rows": 280
+ "stocks_listed": 1985,
+ "stocks_fetched": 1972,
+ "new_signals": [
+  {
+   "strategy": "V8",
+   "code": "1477",
+   "name": "聚陽"
+  },
+  {
+   "strategy": "V10",
+   "code": "1477",
+   "name": "聚陽"
+  },
+  {
+   "strategy": "V11",
+   "code": "4155",
+   "name": "訊映"
+  },
+  {
+   "strategy": "V6",
+   "code": "8464",
+   "name": "億豐"
+  }
+ ],
+ "ledger_rows": 284
 }
