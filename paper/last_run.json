@@ -3,38 +3,17 @@
  "flat_bar_share": 0.078,
  "placeholders_dropped": 175,
  "duplicate_days_resolved": 0,
- "finished_utc": "2026-11-18T10:37:36Z",
+ "finished_utc": "2026-11-18T11:20:46Z",
  "twii_close": 40194.91015625,
  "twii_ma60": 45972.550520833334,
  "twii_above_ma60": false,
  "sp500_overnight_pct": -1.0255395026037006,
  "size_mult": 0.75,
- "vix": 23.690000534057617,
+ "vix": 23.739999771118164,
  "fed_ok": false,
  "fed_error": "FredError: WALCL failed after 4 tries (csv ConnectionError: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Max retries exceeded with url: /graph/fredgraph.csv?id=WALCL (Caused by ReadTimeoutError(\"HTTPSConnec)",
  "stocks_listed": 1985,
  "stocks_fetched": 1972,
- "new_signals": [
-  {
-   "strategy": "V10",
-   "code": "2355",
-   "name": "敬鵬"
-  },
-  {
-   "strategy": "V8",
-   "code": "4977",
-   "name": "眾達-KY"
-  },
-  {
-   "strategy": "V10",
-   "code": "4977",
-   "name": "眾達-KY"
-  },
-  {
-   "strategy": "V11",
-   "code": "4977",
-   "name": "眾達-KY"
-  }
- ],
+ "new_signals": [],
  "ledger_rows": 288
 }
