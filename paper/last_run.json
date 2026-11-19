@@ -3,33 +3,17 @@
  "flat_bar_share": 0.035,
  "placeholders_dropped": 175,
  "duplicate_days_resolved": 0,
- "finished_utc": "2026-11-19T10:37:41Z",
+ "finished_utc": "2026-11-19T11:16:28Z",
  "twii_close": 38426.890625,
  "twii_ma60": 45864.10305989583,
  "twii_above_ma60": false,
  "sp500_overnight_pct": -0.2302272838388908,
  "size_mult": 0.75,
- "vix": 22.030000686645508,
+ "vix": 21.989999771118164,
  "fed_ok": false,
  "fed_error": "FredError: WALCL failed after 4 tries (csv ConnectionError: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Max retries exceeded with url: /graph/fredgraph.csv?id=WALCL (Caused by ReadTimeoutError(\"HTTPSConnec)",
  "stocks_listed": 1985,
  "stocks_fetched": 1972,
- "new_signals": [
-  {
-   "strategy": "V11",
-   "code": "2412",
-   "name": "中華電"
-  },
-  {
-   "strategy": "V8",
-   "code": "6782",
-   "name": "視陽"
-  },
-  {
-   "strategy": "V11",
-   "code": "6782",
-   "name": "視陽"
-  }
- ],
+ "new_signals": [],
  "ledger_rows": 291
 }
