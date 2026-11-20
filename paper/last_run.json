@@ -3,23 +3,17 @@
  "flat_bar_share": 0.065,
  "placeholders_dropped": 172,
  "duplicate_days_resolved": 0,
- "finished_utc": "2026-11-20T10:37:24Z",
+ "finished_utc": "2026-11-20T11:18:47Z",
  "twii_close": 36033.2890625,
  "twii_ma60": 45710.9197265625,
  "twii_above_ma60": false,
  "sp500_overnight_pct": -2.0181222570294644,
  "size_mult": 0.75,
- "vix": 29.56999969482422,
+ "vix": 28.989999771118164,
  "fed_ok": false,
  "fed_error": "FredError: WALCL failed after 4 tries (csv ConnectionError: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Max retries exceeded with url: /graph/fredgraph.csv?id=WALCL (Caused by ReadTimeoutError(\"HTTPSConnec)",
  "stocks_listed": 1985,
  "stocks_fetched": 1972,
- "new_signals": [
-  {
-   "strategy": "V10",
-   "code": "7765",
-   "name": "中華資安"
-  }
- ],
+ "new_signals": [],
  "ledger_rows": 292
 }
