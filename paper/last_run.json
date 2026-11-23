@@ -3,7 +3,7 @@
  "flat_bar_share": 0.061,
  "placeholders_dropped": 208,
  "duplicate_days_resolved": 0,
- "finished_utc": "2026-11-23T21:44:38Z",
+ "finished_utc": "2026-11-23T22:09:35Z",
  "twii_close": 36033.2890625,
  "twii_ma60": 45710.9197265625,
  "twii_above_ma60": false,
@@ -14,22 +14,6 @@
  "fed_error": "FredError: WALCL failed after 4 tries (csv ConnectionError: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Max retries exceeded with url: /graph/fredgraph.csv?id=WALCL (Caused by ReadTimeoutError(\"HTTPSConnec)",
  "stocks_listed": 1986,
  "stocks_fetched": 1973,
- "new_signals": [
-  {
-   "strategy": "V8",
-   "code": "2597",
-   "name": "潤弘"
-  },
-  {
-   "strategy": "V10",
-   "code": "6614",
-   "name": "資拓宏宇"
-  },
-  {
-   "strategy": "V11",
-   "code": "6199",
-   "name": "天品聯合企業股份有限公司"
-  }
- ],
+ "new_signals": [],
  "ledger_rows": 295
 }
