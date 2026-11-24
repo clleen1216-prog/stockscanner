@@ -1,4 +1,4 @@
-# 紙上交易報告 2026-11-23
+# 紙上交易報告 2026-11-24
 
 同時追蹤 4 個策略，**純模擬，沒有使用真錢**：V6（對照組）、V8 價漲量增突破、V10 資金累積(CMF)、V11 強勢股帶量創高。
 回測期望值：V6 +0.15R、V8 +0.06R、V10 +0.08R、V11 +0.09R；這份紙上交易要驗證它們在「沒看過的新資料」上是否成立。
@@ -38,7 +38,7 @@
 - 已記錄 0 筆快照（約每 28 天一筆）；需要 12 期（約一年）才判定。規則：流動性擴張做多、收縮做空，與平均報酬比較。
 
 - Fed 淨流動性：資料缺漏或單位異常，未採用。（FredError: WALCL failed after 4 tries (csv ConnectionError: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Max retries exceeded with url: /graph/fredgraph.csv?id=WALCL (Caused by ReadTimeoutError("HTTPSConnec)）
-- 宏觀部位倍數 **×0.75**：VIX 26.6（升高） → 部位 ×0.75；Fed 流動性資料缺漏或單位異常，不調整
+- 宏觀部位倍數 **×0.75**：VIX 27.5（升高） → 部位 ×0.75；Fed 流動性資料缺漏或單位異常，不調整
 - 這是「只縮不放」的風險調節，不是選股訊號：Fed 13 週訊號尚未通過檢驗（見證據看板）。
 
 ## 證據看板（這些訊號是否通過我們事先訂的檢驗）
