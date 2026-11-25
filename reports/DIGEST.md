@@ -2,16 +2,16 @@
 
 Paper trading only. No real money. Research, not investment advice.
 
-Last run finished: 2026-11-24T20:25:23Z (UTC)
+Last run finished: 2026-11-25T19:38:44Z (UTC)
 
 ## Market state
-- TAIEX 36812 vs 60-day average 45578: **below (weak)**
-- S&P 500 overnight: -0.76%
+- TAIEX 40122 vs 60-day average 45494: **below (weak)**
+- S&P 500 overnight: -0.06%
 - Macro position multiplier: x0.75 (only ever shrinks size)
 
 ## Pipeline health
 - Price data: 1973 of 1986 stocks usable
-- Latest price bar: 2026-11-23; 6.2% of stocks closed exactly at their open
+- Latest price bar: 2026-11-24; 27.2% of stocks closed exactly at their open **(too high: the latest bars look provisional, signals from this run are not trusted)**
 - Fed liquidity feed: **NOT WORKING** (FredError: WALCL failed after 4 tries (csv ConnectionError: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Max retries exceeded with url: /graph/fredgraph.csv?id=WALCL (Caused by ReadTimeoutError("HTTPSConnec))
 
 ## Paper strategies
