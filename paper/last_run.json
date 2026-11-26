@@ -1,20 +1,50 @@
 {
- "last_bar_date": "2026-11-24",
- "flat_bar_share": 0.272,
- "placeholders_dropped": 173,
+ "last_bar_date": "2026-11-25",
+ "flat_bar_share": 0.052,
+ "placeholders_dropped": 202,
  "duplicate_days_resolved": 0,
- "finished_utc": "2026-11-25T20:03:17Z",
- "twii_close": 40122.3515625,
- "twii_ma60": 45494.29407552083,
+ "finished_utc": "2026-11-26T19:21:10Z",
+ "twii_close": 38195.4296875,
+ "twii_ma60": 45367.007552083334,
  "twii_above_ma60": false,
- "sp500_overnight_pct": -0.23176965943197958,
+ "sp500_overnight_pct": -0.2542678815435351,
  "size_mult": 0.75,
- "vix": 28.25,
+ "vix": 26.799999237060547,
  "fed_ok": false,
  "fed_error": "FredError: WALCL failed after 4 tries (csv ConnectionError: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Max retries exceeded with url: /graph/fredgraph.csv?id=WALCL (Caused by ReadTimeoutError(\"HTTPSConnec)",
- "stocks_listed": 1986,
+ "stocks_listed": 1987,
  "stocks_fetched": 1973,
- "new_signals": [],
- "ledger_rows": 295,
- "aborted": "latest bars look provisional; ledger left unchanged"
+ "new_signals": [
+  {
+   "strategy": "V8",
+   "code": "7765",
+   "name": "中華資安"
+  },
+  {
+   "strategy": "V11",
+   "code": "7765",
+   "name": "中華資安"
+  },
+  {
+   "strategy": "V11",
+   "code": "3285",
+   "name": "微端科技股份有限公司"
+  },
+  {
+   "strategy": "V8",
+   "code": "6590",
+   "name": "普鴻資訊股份有限公司"
+  },
+  {
+   "strategy": "V10",
+   "code": "6590",
+   "name": "普鴻資訊股份有限公司"
+  },
+  {
+   "strategy": "V11",
+   "code": "6590",
+   "name": "普鴻資訊股份有限公司"
+  }
+ ],
+ "ledger_rows": 301
 }
