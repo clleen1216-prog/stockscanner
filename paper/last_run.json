@@ -3,7 +3,7 @@
  "flat_bar_share": 0.073,
  "placeholders_dropped": 195,
  "duplicate_days_resolved": 0,
- "finished_utc": "2026-11-27T19:15:33Z",
+ "finished_utc": "2026-11-27T19:35:01Z",
  "twii_close": 39151.80859375,
  "twii_ma60": 45253.28404947917,
  "twii_above_ma60": false,
@@ -14,52 +14,6 @@
  "fed_error": "FredError: WALCL failed after 4 tries (csv ConnectionError: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Max retries exceeded with url: /graph/fredgraph.csv?id=WALCL (Caused by ReadTimeoutError(\"HTTPSConnec)",
  "stocks_listed": 1987,
  "stocks_fetched": 1974,
- "new_signals": [
-  {
-   "strategy": "V10",
-   "code": "2254",
-   "name": "巨鎧精密-創"
-  },
-  {
-   "strategy": "V10",
-   "code": "2355",
-   "name": "敬鵬"
-  },
-  {
-   "strategy": "V8",
-   "code": "2516",
-   "name": "新建"
-  },
-  {
-   "strategy": "V11",
-   "code": "2516",
-   "name": "新建"
-  },
-  {
-   "strategy": "V8",
-   "code": "6614",
-   "name": "資拓宏宇"
-  },
-  {
-   "strategy": "V11",
-   "code": "6614",
-   "name": "資拓宏宇"
-  },
-  {
-   "strategy": "V8",
-   "code": "3285",
-   "name": "微端科技股份有限公司"
-  },
-  {
-   "strategy": "V10",
-   "code": "3285",
-   "name": "微端科技股份有限公司"
-  },
-  {
-   "strategy": "V11",
-   "code": "3609",
-   "name": "三一東林科技股份有限公司"
-  }
- ],
+ "new_signals": [],
  "ledger_rows": 310
 }
